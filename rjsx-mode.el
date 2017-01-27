@@ -57,29 +57,11 @@
   :safe #'integerp
   :group 'rjsx-mode)
 
-(defcustom rjsx-mode-css-indent-offset
-  (if (and (boundp 'standard-indent) standard-indent) standard-indent 2)
-  "CSS indentation level."
-  :type 'integer
-  :safe #'integerp
-  :group 'rjsx-mode)
-
 (defcustom rjsx-mode-code-indent-offset
   (if (and (boundp 'standard-indent) standard-indent) standard-indent 2)
   "Code (javascript, php, etc.) indentation level."
   :type 'integer
   :safe #'integerp
-  :group 'rjsx-mode)
-
-(defcustom rjsx-mode-sql-indent-offset 4
-  "Sql (inside strings) indentation level."
-  :type 'integer
-  :safe #'integerp
-  :group 'rjsx-mode)
-
-(defcustom rjsx-mode-enable-css-colorization (display-graphic-p)
-  "In a CSS part, set background according to the color: #xxx, rgb(x,x,x)."
-  :type 'boolean
   :group 'rjsx-mode)
 
 (defcustom rjsx-mode-enable-auto-indentation (display-graphic-p)
@@ -186,11 +168,6 @@ See rjsx-mode-block-face."
 
 (defcustom rjsx-mode-enable-element-tag-fontification nil
   "Enable tag name fontification."
-  :type 'boolean
-  :group 'rjsx-mode)
-
-(defcustom rjsx-mode-enable-engine-detection nil
-  "Detect such directive -*- engine: ENGINE -*- at the top of the file."
   :type 'boolean
   :group 'rjsx-mode)
 
@@ -399,46 +376,6 @@ See rjsx-mode-block-face."
   "Face for variable names."
   :group 'rjsx-mode-faces)
 
-(defface rjsx-mode-css-selector-face
-  '((t :inherit font-lock-keyword-face))
-  "Face for CSS rules."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-pseudo-class-face
-  '((t :inherit font-lock-builtin-face))
-  "Face for CSS pseudo-classes."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-at-rule-face
-  '((t :inherit font-lock-constant-face))
-  "Face for CSS at-rules."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-property-name-face
-  '((t :inherit font-lock-variable-name-face))
-  "Face for CSS props."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-color-face
-  '((t :inherit font-lock-builtin-face))
-  "Face for CSS colors (#xxx)."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-priority-face
-  '((t :inherit font-lock-builtin-face))
-  "Face for CSS priority (!important)."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-function-face
-  '((t :inherit font-lock-builtin-face))
-  "Face for CSS functions."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-variable-face
-  '((t :inherit rjsx-mode-variable-name-face :slant italic))
-  "Face for CSS vars."
-  :group 'rjsx-mode-faces)
-
 (defface rjsx-mode-function-name-face
   '((t :inherit font-lock-function-name-face))
   "Face for function names."
@@ -472,11 +409,6 @@ See rjsx-mode-block-face."
 (defface rjsx-mode-javascript-string-face
   '((t :inherit rjsx-mode-string-face))
   "Face for javascript strings."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-string-face
-  '((t :inherit rjsx-mode-string-face))
-  "Face for css strings."
   :group 'rjsx-mode-faces)
 
 (defface rjsx-mode-json-key-face
@@ -517,11 +449,6 @@ See rjsx-mode-block-face."
 (defface rjsx-mode-javascript-comment-face
   '((t :inherit rjsx-mode-comment-face))
   "Face for javascript comments."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-css-comment-face
-  '((t :inherit rjsx-mode-comment-face))
-  "Face for css comments."
   :group 'rjsx-mode-faces)
 
 (defface rjsx-mode-constant-face
@@ -582,11 +509,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
   "Face for javascript inside a script element."
   :group 'rjsx-mode-faces)
 
-(defface rjsx-mode-style-face
-  '((t :inherit rjsx-mode-part-face))
-  "Face for css inside a style element."
-  :group 'rjsx-mode-faces)
-
 (defface rjsx-mode-folded-face
   '((t :underline t))
   "Overlay face for folded."
@@ -620,11 +542,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
 (defface rjsx-mode-comment-keyword-face
   '((t :weight bold :box t))
   "Comment keywords."
-  :group 'rjsx-mode-faces)
-
-(defface rjsx-mode-sql-keyword-face
-  '((t :weight bold :slant italic))
-  "Sql keywords."
   :group 'rjsx-mode-faces)
 
 (defface rjsx-mode-html-entity-face
@@ -694,9 +611,9 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
   '("area" "base" "br" "col" "command" "embed" "hr" "img" "input" "keygen"
     "link" "meta" "param" "source" "track" "wbr"))
 
-(defvar rjsx-mode-part-content-types '("css" "javascript" "json" "jsx" "markdown" "sql" "stylus"))
+(defvar rjsx-mode-part-content-types '("javascript" "json" "jsx"))
 
-(defvar rjsx-mode-javascript-languages '("javascript" "jsx" "ejs"))
+(defvar rjsx-mode-javascript-languages '("javascript" "jsx"))
 
 ;; NOTE: without 'syntax-table forward-word fails (#377)
 (defvar rjsx-mode-scan-properties
@@ -730,55 +647,16 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
     ))
 
 (defvar rjsx-mode-engines
-  '(("angular"          . ("angularjs" "angular.js"))
-    ("archibus"         . ())
-    ("asp"              . ())
-    ("aspx"             . ())
-    ("blade"            . ("laravel"))
-    ("cl-emb"           . ())
-    ("clip"             . ())
-    ("closure"          . ("soy"))
-    ("ctemplate"        . ("mustache" "handlebars" "hapax" "ngtemplate" "ember"
-                           "kite" "meteor" "blaze" "ractive"))
-    ("django"           . ("dtl" "twig" "swig" "jinja" "erlydtl" "liquid"
-                           "clabango" "selmer" "nunjucks"))
-    ("dust"             . ("dustjs"))
-    ("ejs"              . ())
-    ("elixir"           . ("phoenix"))
-    ("erb"              . ("eruby" "erubis"))
-    ("freemarker"       . ())
-    ("go"               . ("gtl"))
-    ("jsp"              . ("grails"))
-    ("mako"             . ())
-    ("marko"            . ())
-    ("mason"            . ("poet"))
-    ("lsp"              . ("lisp"))
-    ("mojolicious"      . ())
-    ("php"              . ())
-    ("python"           . ())
-    ("razor"            . ("play" "play2"))
-    ("riot"             . ())
-    ("template-toolkit" . ())
-    ("smarty"           . ())
-    ("thymeleaf"        . ())
-    ("underscore"       . ("underscore.js"))
-    ("velocity"         . ("vtl" "cheetah" "ssp"))
-    ("web2py"           . ()))
+  ;; TODO(colin): remove
+  nil
   "Engine name aliases")
 
 (defvar rjsx-mode-content-types
-  '(("css"        . "\\.\\(s?css\\|css\\.erb\\)\\'")
-    ("javascript" . "\\.\\([jt]s\\|[jt]s\\.erb\\)\\'")
+  '(("javascript" . "\\.\\([jt]s\\|[jt]s\\.erb\\)\\'")
     ("json"       . "\\.\\(api\\|json\\|jsonld\\)\\'")
     ("jsx"        . "\\.[jt]sx\\'")
-    ("xml"        . "\\.xml\\'")
-    ("html"       . "."))
+    )
   "content types")
-
-(defvar rjsx-mode-engine-attr-regexps
-  '(("angular"   . "ng-")
-    ("thymeleaf" . "th:"))
-  "Engine custom attributes")
 
 (defvar rjsx-mode-last-enabled-feature nil)
 
@@ -798,51 +676,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
     ("javascript" . "/*")
     ("php"        . "/*")
     ))
-
-(defvar rjsx-mode-engine-file-regexps
-  '(("asp"              . "\\.asp\\'")
-    ("aspx"             . "\\.as[cp]x\\'")
-    ("archibus"         . "\\.axvw\\'")
-    ("blade"            . "\\.blade\\.php\\'")
-    ("cl-emb"           . "\\.clemb\\'")
-    ("clip"             . "\\.ctml\\'")
-    ("closure"          . "\\.soy\\'")
-    ("ctemplate"        . "\\.\\(chtml\\|mustache\\)\\'")
-    ("django"           . "\\.\\(djhtml\\|tmpl\\|dtl\\|liquid\\|j2\\|njk\\)\\'")
-    ("dust"             . "\\.dust\\'")
-    ("elixir"           . "\\.eex\\'")
-    ("ejs"              . "\\.ejs\\'")
-    ("erb"              . "\\.\\(erb\\|rhtml\\|erb\\.html\\)\\'")
-    ("freemarker"       . "\\.ftl\\'")
-    ("go"               . "\\.go\\(html\\|tmpl\\)\\'")
-    ("handlebars"       . "\\.\\(hb\\.html\\|hbs\\)\\'")
-    ("jinja"            . "\\.jinja\\'")
-    ("jsp"              . "\\.[gj]sp\\'")
-    ("lsp"              . "\\.lsp\\'")
-    ("mako"             . "\\.mako?\\'")
-    ("marko"            . "\\.marko\\'")
-    ("mason"            . "\\.mas\\'")
-    ("mojolicious"      . "\\.epl?\\'")
-    ("php"              . "\\.\\(p[hs]p\\|ctp\\|inc\\)\\'")
-    ("python"           . "\\.pml\\'")
-    ("razor"            . "\\.\\(cs\\|vb\\)html\\'")
-    ("riot"             . "\\.tag\\'")
-    ("smarty"           . "\\.tpl\\'")
-    ("template-toolkit" . "\\.tt.?\\'")
-    ("thymeleaf"        . "\\.thtml\\'")
-    ("velocity"         . "\\.v\\(sl\\|tl\\|m\\)\\'")
-
-    ("django"           . "[st]wig")
-    ("razor"            . "scala")
-
-    )
-  "Engine file extensions.")
-
-(defvar rjsx-mode-engines-alist nil
-  "Alist of filename patterns and corresponding rjsx-mode engine. For example,
-(setq rjsx-mode-engines-alist
-      '((\"php\"    . \"\\\\.phtml\\\\'\")
-        (\"blade\"  . \"\\\\.blade\\\\.\")))")
 
 (defvar rjsx-mode-smart-quotes
   '("«" . "»")
@@ -970,162 +803,7 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
     ("x/" . "<textarea>|</textarea>")
     ("2/" . "<h2>|</h2>")
     ("3/" . "<h3>|</h3>")
-    ("?/" . "<?php | ?>")))
-
-(defvar rjsx-mode-engines-auto-pairs
-  '(("angular"          . (("{{ " . " }}")))
-    ("asp"              . (("<% " . " %>")))
-    ("aspx"             . (("<% " . " %>")
-                           ("<%=" . "%>")
-                           ("<%#" . "%>")
-                           ("<%$" . "%>")
-                           ("<%@" . "%>")
-                           ("<%:" . "%>")
-                           ("<%-" . "- | --%>")))
-    ("blade"            . (("{{{" . " | }}}")
-                           ("{{ " . " }}")
-                           ("{!!" . " | !!}")
-                           ("@{{" . " | }}")
-                           ("{{-" . "- | --}}")))
-    ("cl-emb"           . (("<% " . " %>")
-                           ("<%=" . " | %>")
-                           ("<%#" . " | %>")))
-    ("ctemplate"        . (("{{ " . "| }}")
-                           ("{{{" . " | }}}")
-                           ("{~{" . " | }}")
-                           ("{{~" . "{ | }}}")
-                           ("{{!" . "-- | --}}")
-                           ("{{/" . "}}")
-                           ("{{#" . "}}")))
-    ("django"           . (("{{ " . " }}")
-                           ("{% " . " %}")
-                           ("{%-" . " | %}")
-                           ("{# " . " #}")))
-    ("elixir"           . (("<% " . " %>")
-                           ("<%=" . " | %>")
-                           ("<%%" . " | %>")
-                           ("<%#" . " | %>")))
-    ("ejs"              . (("<% " . " %>")
-                           ("<%=" . "%>")
-                           ("<%#" . "%>")
-                           ("<%-" . "%>")))
-    ("erb"              . (("<% " . " %>")
-                           ("<%=" . "%>")
-                           ("<%#" . "%>")
-                           ("<%-" . "%>")))
-    ("freemarker"       . (("<% " . " %>")
-                           ("<#-" . "- | -->")
-                           ("${ " . " }")
-                           ("[% " . " %]")
-                           ("[# " . " #]")
-                           ("[#-" . "- | --]")))
-    ("jsp"              . (("<% " . " %>")
-                           ("<%-" . "- | --%>")
-                           ("<%=" . "%>")
-                           ("<%!" . "%>")
-                           ("<%@" . "%>")
-                           ("${ " . " }")))
-    ("lsp"              . (("<% " . " %>")
-                           ("<%%" . " | %>")
-                           ("<%#" . " | %>")))
-    ("mako"             . (("<% " . " %>")
-                           ("<%!" . " | %>")
-                           ("${ " . " }")))
-    ("marko"            . (("${ " . " }")))
-    ("mason"            . (("<% " . " %>")
-                           ("<& " . " &>")))
-    ("mojolicious"      . (("<% " . " %>")
-                           ("<%=" . " | %>")
-                           ("<%%" . " | %>")
-                           ("<%#" . " | %>")))
-    ("php"              . (("<?p" . "hp | ?>")
-                           ("<? " . " ?>")
-                           ("<?=" . "?>")))
-    ("template-toolkit" . (("[% " . " %]")
-                           ("[%-" . " | %]")
-                           ("[%#" . " | %]")))
-    ("riot"             . (("={ " . " }")))
-    ("underscore"       . (("<% " . " %>")))
-    ("web2py"           . (("{{ " . " }}")
-                           ("{{=" . "}}")))
-    (nil                . (("<!-" . "- | -->")))
     ))
-
-(defvar rjsx-mode-engines-snippets
-  '(("ejs" . (("for"     . "<% for (|) { %>\n\n<% } %>")
-              ("if"      . "<% if (|) { %>\n\n<% } %>")))
-    ("erb" . (("each"    . "<% |.each do  %>\n\n<% end %>")
-              ("if"      . "<% if | %>\n\n<% end %>")
-              ("when"    . "<% when | %>\n\n<% end %>")
-              ("unless"  . "<% unless | %>\n\n<% end %>")))
-    ("php" . (("if"      . "<?php if (|): ?>\n\n<?php endif; ?>")
-              ("while"   . "<?php while (|): ?>\n\n<?php endwhile; ?>")
-              ("for"     . "<?php for (| ; ; ): ?>\n\n<?php endfor; ?>")
-              ("foreach" . "<?php foreach (| as ): ?>\n\n<?php endforeach; ?>")
-              ("each"    . "<?php foreach (| as ): ?>\n\n<?php endforeach; ?>")
-              ("switch"  . "<?php switch (|): ?>\n<?php case 1: ?>\n\n<?php break ;?>\n<?php case 2: ?>\n\n<?php break ;?>\n<?php endswitch;?>")))
-    ("django" . (("block"      . "{% block | %}\n\n{% endblock %}")
-                 ("comment"    . "{% comment | %}\n\n{% endcomment %}")
-                 ("cycle"      . "{% cycle | as  %}\n\n{% endcycle  %}")
-                 ("filter"     . "{% filter | %}\n\n{% endfilter %}")
-                 ("for"        . "{% for | in  %}\n\n{% endfor %}")
-                 ("if"         . "{% if | %}\n\n{% endif %}")
-                 ("ifequal"    . "{% ifequal | %}\n\n{% endifequal %}")
-                 ("ifnotequal" . "{% ifnotequal | %}\n\n{% endifnotequal %}")
-                 ("safe"       . "{% safe | %}\n\n{% endsafe %}")))
-    ("template-toolkit" . (("if"      . "[% IF | %]\n\n[% END %]")))
-    (nil . (("html5" . "<!doctype html>\n<html>\n<head>\n<title></title>\n<meta charset=\"utf-8\" />\n</head>\n<body>\n|\n</body>\n</html>")
-            ("table" . "<table><tbody>\n<tr>\n<td>|</td>\n<td></td>\n</tr>\n</tbody></table>")
-            ("ul"    . "<ul>\n<li>|</li>\n<li></li>\n</ul>")))
-    ))
-
-(defvar rjsx-mode-engine-token-regexps
-  (list
-   '("asp"         . "//\\|/\\*\\|\"\\|'")
-   '("ejs"         . "//\\|/\\*\\|\"\\|'")
-   '("erb"         . "\"\\|'\\|#\\|<<[-]?['\"]?\\([[:alnum:]_]+\\)['\"]?")
-   '("lsp"         . "\"\\|#|\\|;")
-   '("mako"        . "\"\\|'\\|#")
-   '("mason"       . "\"\\|'\\|#")
-   '("mojolicious" . "\"\\|'")
-   '("php"         . "//\\|/\\*\\|#\\|\"\\|'\\|<<<['\"]?\\([[:alnum:]]+\\)['\"]?")
-   '("python"      . "\"\\|'\\|#")
-   '("web2py"      . "\"\\|'"))
-  "Engine regexps used to identify tokens (strings / comments) in blocks.")
-
-(defvar rjsx-mode-engine-open-delimiter-regexps
-  (list
-   '("angular"          . "{{")
-   '("asp"              . "<%\\|</?[[:alpha:]]+:[[:alpha:]]+\\|</?[[:alpha:]]+Template")
-   '("aspx"             . "<%.")
-   '("blade"            . "{{.\\|{!!\\|@{{\\|@[[:alpha:]]")
-   '("cl-emb"           . "<%")
-   '("closure"          . "{.\\|/\\*\\| //")
-   '("clip"             . "</?c:[[:alpha:]-]+")
-   '("ctemplate"        . "[$]?{[{~].")
-   '("django"           . "{[#{%]")
-   '("dust"             . "{.")
-   '("elixir"           . "<%.")
-   '("ejs"              . "<%")
-   '("erb"              . "<%\\|^%.")
-   '("freemarker"       . "<%\\|${\\|</?[[:alpha:]]+:[[:alpha:]]\\|</?[@#]\\|\\[/?[@#].")
-   '("go"               . "{{.")
-   '("jsp"              . "<%\\|${")
-   '("lsp"              . "<%")
-   '("mako"             . "</?%\\|${\\|^[ \t]*%.\\|^[ \t]*##")
-   '("marko"            . "${")
-   '("mason"            . "</?[&%]\\|^%.")
-   '("mojolicious"      . "<%\\|^[ \t]*%.")
-   '("php"              . "<\\?")
-   '("python"           . "<\\?")
-   '("razor"            . "@.\\|^[ \t]*}")
-   '("riot"             . "{.")
-   '("smarty"           . "{[[:alpha:]#$/*\"]")
-   '("template-toolkit" . "\\[%.\\|%%#")
-   '("underscore"       . "<%")
-   '("velocity"         . "#[[:alpha:]#*]\\|$[[:alpha:]!{]")
-   '("web2py"           . "{{"))
-  "Engine regexps used to identify blocks.")
 
 (defvar rjsx-mode-normalization-rules
   '(("tag-case"          . "lower-case")
@@ -1170,7 +848,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
   '(("\\.\\(png\\|jpe?g\\|gif\\|webp\\)$" "<img src=\"%s\" alt=\"\" />" nil 4)
     ("\\.svg$" "<object data=\"%s\" type=\"image/svg+xml\"></object>" nil 0)
     ("\\.js$" "<script type=\"text/javascript\" src=\"%s\"></script>" t 0)
-    ("\\.css$" "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />" t 0)
     ("\\.html?$" "<a href=\"%s\"></a>" nil 4))
   "List of elements and extensions for `rjsx-mode-file-link'. It
 consists of a string that contains the regular expression that
@@ -1180,398 +857,12 @@ that tells if the element belongs in the <head> element, and
 number of characters to move back if needed (or 0 if point
 shouldn't be moved back.)")
 
-(defvar rjsx-mode-sql-queries
-  (regexp-opt
-   '("SELECT" "INSERT" "UPDATE" "DELETE" "select" "insert" "update" "delete")))
-
-(defvar rjsx-mode-sql-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "sql" rjsx-mode-extra-keywords))
-    '("SELECT" "INSERT" "UPDATE" "DELETE"
-      "FROM" "WHERE" "GROUP BY" "LIKE" "LIMIT" "HAVING" "JOIN" "LEFT" "INNER"
-      "FULL" "OUTER" "VALUES" "ORDER BY" "SEPARATOR" "ASC" "DESC"
-      "AND" "OR" "ON" "WHEN" "ELSE" "END" "THEN"))))
-
-(defvar rjsx-mode-python-constants
-  (regexp-opt
-   (append
-    (cdr (assoc "python" rjsx-mode-extra-constants))
-    '("True" "False" "None" "__debug__" "NotImplemented" "Ellipsis"))))
-
-(defvar rjsx-mode-erlang-constants
-  (regexp-opt
-   (append
-    (cdr (assoc "erlang" rjsx-mode-extra-constants))
-    '("true" "false"))))
-
-(defvar rjsx-mode-erlang-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "erlang" rjsx-mode-extra-keywords))
-    '("else" "if" "do" "end"))))
-
-(defvar rjsx-mode-cl-emb-constants
-  (regexp-opt
-   '("nil" "t" "raw" "escape")))
-
-(defvar rjsx-mode-cl-emb-keywords
-  (regexp-opt
-   '("if" "else" "endif" "unless" "endunless" "var" "repeat"
-     "endrepeat" "loop" "endloop" "include" "call" "with"
-     "endwith" "set" "genloop" "endgenloop" "insert")))
-
-(defvar rjsx-mode-lsp-constants
-  (regexp-opt
-   '("nil" "t")))
-
-(defvar rjsx-mode-lsp-keywords
-  (regexp-opt
-   '("dolist" "let" "while" "cond" "when" "progn" "if"
-     "dotimes" "unless" "lambda"
-     "loop" "for" "and" "or" "in" "do" "defun")))
-
-(defvar rjsx-mode-php-constants
-  (regexp-opt
-   (append
-    (cdr (assoc "php" rjsx-mode-extra-constants))
-    '("TRUE" "FALSE" "NULL" "true" "false" "null"
-      "STR_PAD_LEFT" "STR_PAD_RIGHT"
-      "ENT_COMPAT" "ENT_QUOTES" "ENT_NOQUOTES" "ENT_IGNORE"
-      "ENT_SUBSTITUTE" "ENT_DISALLOWED" "ENT_HTML401" "ENT_XML1"
-      "ENT_XHTML" "ENT_HTML5" "JSON_PRETTY_PRINT"
-      "LIBXML_NOBLANKS"))))
-
-(defvar rjsx-mode-php-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "php" rjsx-mode-extra-keywords))
-    '("and" "array" "as" "break"
-      "callable" "case" "catch"  "catch all" "class" "const" "continue"
-      "default" "die" "do" "echo" "else" "elseif" "empty"
-      "endfor" "endforeach" "endif" "endswitch" "endwhile" "exit" "extends"
-      "finally" "for" "foreach" "function" "global" "goto"
-      "if" "include" "include_once" "instanceof" "interface" "isset"
-      "list" "next" "new" "or" "private" "protected" "public"
-      "require" "require_once" "return" "static" "switch" "try" "throw"
-      "unset" "use" "var" "when" "while" "xor" "yield"))))
-
-(defvar rjsx-mode-php-types
-  (eval-when-compile
-    (regexp-opt
-     '("array" "bool" "boolean" "char" "const" "double" "float"
-       "int" "integer" "long" "mixed" "object" "real" "string"))))
-
-(defvar rjsx-mode-css-at-rules
-  (eval-when-compile
-    (regexp-opt
-     '("charset" "import" "media" "page" "font-face"
-       "namespace" "supports" "document"
-       "keyframes" "-moz-keyframes" "-webkit-keyframes"
-       "mixin"))))
-
-(defvar rjsx-mode-css-pseudo-classes
-  (eval-when-compile
-    (regexp-opt
-     '("active" "after" "before" "checked" "disabled" "empty" "enabled"
-       "first" "first-child" "first-letter" "first-line" "first-of-type" "focus"
-       "hover" "lang" "last-child" "last-of-type" "left" "link"
-       "not" "nth-child" "nth-last-child" "nth-last-of-type" "nth-of-type"
-       "only-child" "only-of-type"
-       "right" "root" "selection" "target" "visited"))))
-
-(defvar rjsx-mode-python-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "python" rjsx-mode-extra-keywords))
-    '("and" "as" "assert" "break" "class" "continue" "def" "del"
-      "elif" "else" "except" "finally" "for" "from" "global"
-      "if" "import" "in" "is" "lambda" "nonlocal" "not" "or" "pass"
-      "raise" "return" "try" "while" "with" "yield"))))
-
-(defvar rjsx-mode-jsp-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "jsp" rjsx-mode-extra-keywords))
-    '("case" "catch" "do" "else" "end" "false" "for" "function"
-      "if" "in" "include"
-      "new" "package" "page" "private" "protected" "public"
-      "return" "tag" "taglib" "throw" "throws" "true" "try" "void" "while"))))
-
-(defvar rjsx-mode-erb-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "erb" rjsx-mode-extra-keywords))
-    '("alias" "and" "begin" "break" "case" "class" "def" "defined?" "do"
-      "elsif" "else" "end" "ensure" "fail" "for" "if" "in"
-      "module" "next" "not" "or" "redo" "rescue" "retry" "return"
-      "then" "super" "unless" "undef" "until" "when" "while" "yield"
-      "__ENCODING__" "__FILE__" "__LINE__"))))
-
-(defvar rjsx-mode-mason-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "mason" rjsx-mode-extra-keywords))
-    '("and" "base" "close" "die" "each" "else" "elsif" "eval" "exists"
-      "foreach" "grep" "if" "length" "local" "my" "next" "open" "or"
-      "package" "pop" "ref" "return" "stat" "sub" "tie"
-      "undef" "unless" "use" "while"))))
-
-(defvar rjsx-mode-erb-builtins
-  (regexp-opt
-   (append
-    (cdr (assoc "erb" rjsx-mode-extra-builtins))
-
-    '("__callee__" "__dir__" "__method__"
-      "abort" "at_exit" "autoload" "autoload?"
-      "binding" "block_given?" "caller" "catch"
-      "eval" "exec" "exit" "exit!" "fail" "fork" "format"
-      "lambda" "load" "loop" "open"
-      "p" "print" "printf" "proc" "putc" "puts"
-      "raise" "rand" "readline" "readlines" "require" "require_relative"
-      "sleep" "spawn" "sprintf" "srand" "syscall" "system"
-      "throw" "trap" "warn"
-      "alias_method" "attr" "attr_accessor" "attr_reader" "attr_writer"
-      "define_method" "extend" "include" "module_function"
-      "prepend" "private" "protected" "public"
-      "refine" "using"
-
-      "error_message_on" "error_messages_for" "form" "input"
-      "auto_discovery_link_tag" "image_tag" "javascript_include_tag"
-      "stylesheet_link_tag" "image_path" "path_to_image"" "
-      "javascript_path" "path_to_javascript" "register_javascript_expansion"
-      "register_javascript_include_default" "register_stylesheet_expansion"
-      "stylesheet_path" "path_to_stylesheet" "atom_feed" "entry" "updated"
-      "benchmark" "cache" "capture" "content_for" "distance_of_time_in_words"
-      "distance_of_time_in_words_to_now" "time_ago_in_words" "date_select"
-      "datetime_select" "time_select" "select_date" "select_datetime"
-      "select_day" "select_hour" "select_minute" "select_month" "select_second"
-      "select_time" "select_year" "debug"
-      "check_box" "fields_for" "file_field" "form_for" "hidden_field"
-      "label" "password_field" "radio_button" "text_area" "text_field"
-      "check_box_tag" "field_set_tag" "file_field_tag" "form_tag"
-      "hidden_field_tag" "image_submit_tag" "label_tag" "password_field_tag"
-      "radio_button_tag" "select_tag" "submit_tag" "text_area_tag"
-      "text_field_tag"
-      "collection_select" "country_options_for_select" "country_select"
-      "option_groups_from_collection_for_select" "options_for_select"
-      "options_from_collection_for_select" "select"
-      "time_zone_options_for_select"
-      "time_zone_select" "button_to_function" "define_javascript_functions"
-      "escape_javascript" "javascript_tag" "link_to_function"" "
-      "number_to_currency" "number_to_human_size" "number_to_percentage"
-      "number_to_phone" "number_with_delimiter" "number_with_precision"
-      "evaluate_remote_response" "form_remote_for" "form_remote_tag"
-      "link_to_remote" "observe_field" "observe_field"
-      "periodically_call_remote"
-      "remote_form_for" "remote_function" "submit_to_remote" "update_page"
-      "update_page_tag" "dom_class" "dom_id" "partial_path" "sanitize"
-      "sanitize_css" "strip_links" "strip_tags"
-      "cdata_section" "content_tag" "escape_once" "tag"
-      "auto_link" "concat" "cycle" "excerpt" "highlight" "markdown" "pluralize"
-      "reset_cycle" "simple_format" "textilize" "textilize_without_paragraph"
-      "truncate" "word_wrap" "button_to" "current_page?" "link_to" "link_to_if"
-      "link_to_unless" "link_to_unless_current" "mail_to" "url_for"
-      "action_name" "atom_feed" "audio_path" "audio_tag"
-      "content_tag_for" "controller" "controller_name" "action_name"
-      "controller_path" "convert_to_model" "cookies" "csrf_meta_tag"
-      "csrf_meta_tags" "headers"
-      "current_cycle" "div_for" "email_field" "email_field_tag"
-      "favicon_link_tag" "flash" "l" "button_tag"
-      "grouped_collection_select" "grouped_options_for_select"
-      "image_alt" "j" "javascript_cdata_section"
-      "localize" "logger" "number_field"
-      "number_field_tag" "number_to_human" "params" "path_to_audio"
-      "path_to_video" "phone_field" "phone_field_tag" "provide"
-      "range_field" "range_field_tag" "raw" "render" "request"
-      "request_forgery_protection_token" "response" "safe_concat"
-      "safe_join" "search_field" "search_field_tag"
-      "session" "t" "telephone_field" "telephone_field_tag"
-      "time_tag" "translate" "url_field" "url_field_tag"
-      "url_options" "video_path" "video_tag" "simple_form_for"
-
-      ))))
-
-(defvar rjsx-mode-asp-constants
-  (regexp-opt
-   (append
-    (cdr (assoc "asp" rjsx-mode-extra-constants))
-    '("adAsyncExecute" "adAsyncFetch" "adAsyncFetchNonBlocking" "adCmdFile"
-      "adCmdStoredProc" "adCmdTable" "adCmdTableDirect" "adCmdText" "adCmdUnknown"
-      "adCmdUnspecified" "adExecuteNoRecords" "adExecuteRecord" "adExecuteStream"
-      "adLockBatchOptimistic" "adLockOptimistic" "adLockPessimistic"
-      "adLockReadOnly" "adLockUnspecified" "adOpenDynamic" "adOpenForwardOnly"
-      "adOpenKeyset" "adOpenStatic" "adOpenUnspecified" "adOptionUnspecified"
-      "Empty" "Nothing" "Null" "True" "False"
-      "vbBack" "vbCr" "vbCrLf" "vbFormFeed" "vbLf" "vbNewLine" "vbNullChar"
-      "vbNullString" "vbObjectError" "vbScript" "vbTab" "vbVerticalTab"))))
-
-(defvar rjsx-mode-asp-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "asp" rjsx-mode-extra-keywords))
-    '("Abs" "And" "Array" "Asc" "Atn"
-      "CBool" "CByte" "CCur" "CDate" "CDbl" "CInt" "CLng" "CSng" "CStr"
-      "Call" "Case" "Chr" "Class" "Const" "Cos" "CreateObject"
-      "Date" "DateAdd" "DateDiff" "DatePart" "DateSerial" "DateValue"
-      "Day" "Dim" "Do"
-      "Each" "Else" "ElseIf" "End" "Erase" "Err" "Eval" "Exit" "Exp"
-      "Explicit"
-      "Filter" "Fix" "For" "FormatCurrency" "FormatDateTime"
-      "FormatNumber" "FormatPercent" "Function"
-      "GetLocale" "GetObject" "GetRef" "Hex" "Hour"
-      "If" "In" "InStr" "InStrRev" "InputBox" "Int" "IsArray" "IsDate"
-      "IsEmpty" "IsNull" "IsNumeric" "IsObject" "Join"
-      "LBound" "LCase" "LTrim" "Language" "Left" "Len" "Let"
-      "LoadPicture" "Log" "Loop"
-      "Mid" "Minute" "Month" "MonthName" "MsgBox"
-      "New" "Next" "Not" "Now"
-      "Oct" "On" "Option" "Or" "Preserve" "Private" "Public"
-      "RGB" "RTrim" "Redim" "Rem" "Replace" "Right" "Rnd" "Round"
-      "ScriptEngine" "ScriptEngineBuildVersion"
-      "ScriptEngineMajorVersion" "ScriptEngineMinorVersion"
-      "Second" "Select" "Set" "SetLocale" "Sgn" "Sin" "Space" "Split"
-      "Sqr" "StrComp" "StrReverse" "String" "Sub"
-      "Tan" "Then" "Time" "TimeSerial" "TimeValue" "Timer" "To" "Trim"
-      "TypeName"
-      "UBound" "UCase" "Until" "VarType"
-      "Weekday" "WeekdayName" "Wend" "With" "While" "Year"))))
-
-(defvar rjsx-mode-asp-types
-  (regexp-opt
-   (append
-    (cdr (assoc "asp" rjsx-mode-extra-types))
-    '("Application" "ASPError" "Request" "Response" "Server" "Session"))))
-
-(defvar rjsx-mode-aspx-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "aspx" rjsx-mode-extra-keywords))
-    '("case" "catch" "do" "else" "end" "for" "foreach" "function"
-      "if" "in" "include" "new" "package" "page" "return"
-      "tag" "throw" "throws" "try" "while"))))
-
-(defvar rjsx-mode-smarty-keywords
-  (regexp-opt '("as")))
-
-(defvar rjsx-mode-velocity-keywords
-  (eval-when-compile
-    (regexp-opt '("in" "true" "false"))))
-
-(defvar rjsx-mode-freemarker-keywords
-  (eval-when-compile
-    (regexp-opt '("as" "list"))))
-
-(defvar rjsx-mode-go-keywords
-  (eval-when-compile
-    (regexp-opt
-     '("define" "else" "end" "if" "pipeline" "range" "template" "with"))))
-
-(defvar rjsx-mode-go-functions
-  (eval-when-compile
-    (regexp-opt
-     '("and" "call" "html" "index" "js" "len" "not" "or"
-       "print" "printf" "println" "urlquery"))))
-
-(defvar rjsx-mode-closure-keywords
-  (eval-when-compile
-    (regexp-opt '("in" "and" "not" "or"))))
-
-(defvar rjsx-mode-django-control-blocks
-  (append
-   (cdr (assoc "django" rjsx-mode-extra-control-blocks))
-   '(
-
-     "assets" "autoescape"
-     "block" "blocktrans"
-     "cache" "call" "capture" "comment"
-     "draw"
-     "embed"
-     "filter" "for" "foreach" "form"
-     "if" "ifchanged" "ifequal" "ifnotequal"
-     "macro"
-     "random" "raw"
-     "safe" "sandbox" "spaceless"
-     "tablerow"
-     "unless"
-     "verbatim"
-     "with"
-
-     "endassets" "endautoescape"
-     "endblock" "endblocktrans"
-     "endcache" "endcall" "endcapture" "endcomment"
-     "draw"
-     "endembed"
-     "endfilter" "endfor" "endforeach" "endform"
-     "endif" "endifchanged" "endifequal" "endifnotequal"
-     "endmacro"
-     "endrandom" "endraw"
-     "endsafe" "endsandbox"  "endspaceless"
-     "endtablerow"
-     "endunless"
-     "endverbatim"
-     "endwith"
-
-     ;; "set" "endset" ;#504
-
-     "csrf_token" "cycle" "debug"
-     "elif" "else" "elseif" "elsif" "empty" "extends"
-     "firstof" "include" "load" "lorem" "now" "regroup" "ssi"
-     "trans" "templatetag" "url" "widthratio"
-
-     )))
-
-(defvar rjsx-mode-django-control-blocks-regexp
-  (regexp-opt rjsx-mode-django-control-blocks t))
-
-(defvar rjsx-mode-django-keywords
-  (eval-when-compile
-    (regexp-opt
-     '("and" "as" "assign"
-       "break"
-       "cache" "call" "case" "context" "continue"
-       "do"
-       "flush" "from"
-       "ignore" "import" "in" "is"
-       "layout" "load"
-       "missing"
-       "none" "not"
-       "or"
-       "pluralize"
-       "random"
-       "set" ;#504
-       "unless" "use"
-       "var"
-       ))))
-
-(defvar rjsx-mode-django-types
-  (eval-when-compile
-    (regexp-opt '("null" "false" "true"))))
-
 (defvar rjsx-mode-directives
   (eval-when-compile
     (regexp-opt
      '("include" "page" "taglib"
        "Assembly" "Control" "Implements" "Import"
        "Master" "OutputCache" "Page" "Reference" "Register"))))
-
-(defvar rjsx-mode-template-toolkit-keywords
-  (regexp-opt
-   '("block" "call" "case" "catch" "clear" "default" "do"
-     "else" "elsif" "end" "filter" "final" "for"
-     "foreach" "get" "if" "in" "include" "insert" "is" "last"
-     "macro" "meta" "or" "perl" "process" "rawperl" "return"
-     "set" "stop" "switch" "tags" "throw" "try"
-     "unless" "use" "while" "wrapper")))
-
-(defvar rjsx-mode-perl-keywords
-  (regexp-opt
-   '("__DATA__" "__END__" "__FILE__" "__LINE__" "__PACKAGE__"
-     "and" "cmp" "continue" "CORE" "do" "else" "elsif" "eq" "exp"
-     "for" "foreach" "ge" "gt" "if" "le" "lock" "lt" "m" "ne" "no"
-     "or" "package" "q" "qq" "qr" "qw" "qx" "s" "sub"
-     "tr" "unless" "until" "while" "xor" "y"
-     "my" "use" "print" "say")))
 
 (defvar rjsx-mode-javascript-keywords
   (regexp-opt
@@ -1589,32 +880,13 @@ shouldn't be moved back.)")
   (regexp-opt
    '("false" "null" "undefined" "Infinity" "NaN" "true" "arguments" "this")))
 
-(defvar rjsx-mode-razor-keywords
-  (regexp-opt
-   (append
-    (cdr (assoc "razor" rjsx-mode-extra-keywords))
-    '("false" "true" "foreach" "if" "else" "in" "var" "for" "display"
-      "match" "case" "to"
-      "Html"))))
-
 (defvar rjsx-mode-selector-font-lock-keywords
-  (list
-   '("$[[:alnum:]-]+" 0 'rjsx-mode-css-variable-face)
-   (cons (concat "@\\(" rjsx-mode-css-at-rules "\\)\\_>")
-         '(0 'rjsx-mode-css-at-rule-face))
-   '("\\_<\\(all\|braille\\|embossed\\|handheld\\|print\\|projection\\|screen\\|speech\\|tty\\|tv\\|and\\|or\\)\\_>"
-     1 'rjsx-mode-keyword-face)
-   '("[^,]+" 0 'rjsx-mode-css-selector-face)
-   ;;(cons (concat ":\\(" rjsx-mode-css-pseudo-classes "\\)\\(([^)]*)\\)?")
-   ;;      '(0 'rjsx-mode-css-pseudo-class-face t t))
-   (cons (concat ":\\([ ]*[[:alpha:]][^,{]*\\)") '(0 'rjsx-mode-css-pseudo-class-face t t))
-   ))
+  nil) ;; TODO(colin): remove
 
 (defvar rjsx-mode-declaration-font-lock-keywords
   (list
    '("--[[:alnum:]-]+" 0 'rjsx-mode-css-variable-face)
    '("$[[:alnum:]-]+" 0 'rjsx-mode-css-variable-face)
-   (cons (concat "@\\(" rjsx-mode-css-at-rules "\\)\\_>") '(1 'rjsx-mode-css-at-rule-face))
    '("\\([[:alpha:]-]+\\)[ ]?:" 0 'rjsx-mode-css-property-name-face)
    '("\\([[:alpha:]-]+\\)[ ]?(" 1 'rjsx-mode-css-function-face)
    '("#[[:alnum:]]\\{1,6\\}" 0 'rjsx-mode-css-color-face t t)
@@ -1654,24 +926,6 @@ shouldn't be moved back.)")
    '("\\_<\\([[:alnum:]_-]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
    ))
 
-(defvar rjsx-mode-stylus-font-lock-keywords
-  (list
-   ;;'("^[ \t]*\\([.].+\\)$" 1 'rjsx-mode-css-selector-face)
-   ;;'("\\_<\\(\\(background\\|border\\)-[[:alpha:]]+\\)\\_>" 1 'rjsx-mode-css-property-name-face)
-   ))
-
-(defvar rjsx-mode-sql-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-sql-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\_<\\([[:alnum:]_-]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   ))
-
-(defvar rjsx-mode-markdown-font-lock-keywords
-  (list
-   '("^[ ]*[*].*$" 0 'rjsx-mode-variable-name-face)
-   '("^[ ]*#.*$" 0 'rjsx-mode-comment-face)
-   ))
-
 (defvar rjsx-mode-html-tag-font-lock-keywords
   (list
    '("\\(</?\\)\\([[:alnum:]]+\\)"
@@ -1682,374 +936,13 @@ shouldn't be moved back.)")
    '("/?>" 0 'rjsx-mode-html-tag-bracket-face)
   ))
 
-(defvar rjsx-mode-dust-font-lock-keywords
-  (list
-   '("{[#:/?@><+^]\\([[:alpha:]_.]+\\)" 1 'rjsx-mode-block-control-face)
-   '(":\\([[:alpha:]]+\\)" 1 'rjsx-mode-keyword-face)
-   '("\\_<\\([[:alnum:]_]+=\\)\\(\"[^\"]*\"\\|[[:alnum:]_]*\\)"
-     (1 'rjsx-mode-block-attr-name-face)
-     (2 'rjsx-mode-block-attr-value-face))
-   '("\\\([[:alnum:]_.]+\\)" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-template-toolkit-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-template-toolkit-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   '("\\\([[:alpha:]][[:alnum:]_]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("\\\([[:alpha:]][[:alnum:]_]+\\)" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-smarty-font-lock-keywords
-  (list
-   (cons (concat "[ ]\\(" rjsx-mode-smarty-keywords "\\)[ ]") '(1 'rjsx-mode-keyword-face))
-   '("{/?\\([[:alpha:]_]+\\)" 1 'rjsx-mode-block-control-face)
-   '("\\([}{]\\)" 0 'rjsx-mode-block-delimiter-face)
-   '("\\_<\\([$]\\)\\([[:alnum:]_]+\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   '("\\_<\\(\\sw+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '(" \\(\\sw+[ ]?=\\)" 1 'rjsx-mode-param-name-face)
-   '(" \\(\\sw+\\)[ }]" 1 'rjsx-mode-param-name-face)
-   '("|\\([[:alnum:]_]+\\)" 1 'rjsx-mode-function-call-face)
-   '("\\(->\\)\\(\\sw+\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   '("[.]\\([[:alnum:]_-]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[.]\\([[:alnum:]_]+\\)" 1 'rjsx-mode-variable-name-face)
-   '("#\\([[:alnum:]_]+\\)#" 1 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-velocity-font-lock-keywords
-  (list
-   '("#{?\\([[:alpha:]_]+\\)\\_>" (1 'rjsx-mode-block-control-face))
-   (cons (concat "\\_<\\(" rjsx-mode-velocity-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face t t))
-   '("#macro([ ]*\\([[:alpha:]]+\\)[ ]+" 1 'rjsx-mode-function-name-face)
-   '("[.]\\([[:alnum:]_-]+\\)" 1 'rjsx-mode-variable-name-face)
-   '("\\_<\\($[!]?[{]?\\)\\([[:alnum:]_-]+\\)[}]?" (1 nil) (2 'rjsx-mode-variable-name-face))
-   ))
-
-(defvar rjsx-mode-mako-tag-font-lock-keywords
-  (list
-   '("</?%\\([[:alpha:]:]+\\)" 1 'rjsx-mode-block-control-face)
-   '("\\_<\\([[:alpha:]]+=\\)\\(\"[^\"]*\"\\)"
-     (1 'rjsx-mode-block-attr-name-face t t)
-     (2 'rjsx-mode-block-attr-value-face t t))
-   ))
-
-(defvar rjsx-mode-mako-block-font-lock-keywords
-  (list
-   '("\\_<\\(\\sw+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   (cons (concat "\\_<\\(" rjsx-mode-python-constants "\\)\\_>") '(1 'rjsx-mode-constant-face))
-   (cons (concat "\\_<\\(" rjsx-mode-python-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(endfor\\|endif\\|endwhile\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   ))
-
-(defvar rjsx-mode-web2py-font-lock-keywords
-  (list
-   '("\\_<\\(\\sw+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   (cons (concat "\\_<\\(" rjsx-mode-python-constants "\\)\\_>") '(1 'rjsx-mode-constant-face))
-   (cons (concat "\\_<\\(" rjsx-mode-python-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(block\\|extend\\|super\\|end\\|include\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   ))
-
-(defvar rjsx-mode-django-expr-font-lock-keywords
-  (list
-   '("|[ ]?\\([[:alpha:]_]+\\)\\_>" 1 'rjsx-mode-filter-face)
-   (cons (concat "\\_<\\(" rjsx-mode-django-types "\\)\\_>") '(1 'rjsx-mode-type-face))
-   '("\\_<\\([[:alpha:]_]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alnum:]_]+" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-django-code-font-lock-keywords
-  (list
-   (cons (concat "{%[ ]*\\(" rjsx-mode-django-control-blocks-regexp "\\)[ %]") '(1 'rjsx-mode-block-control-face))
-   '("{%[ ]*\\(end[[:alpha:]]+\\)\\_>" 1 'rjsx-mode-block-control-face) ;#504
-   (cons (concat "\\_<\\(" rjsx-mode-django-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-django-types "\\)\\_>") '(1 'rjsx-mode-type-face))
-   '("|[ ]?\\([[:alpha:]_]+\\)\\_>" 1 'rjsx-mode-function-call-face)
-   '("\\_<\\([[:alpha:]_]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alnum:]_.]+" 0 'rjsx-mode-variable-name-face)
-   '("[[:alnum:]_]+\\([.][[:alnum:]_]+\\)+" 0 'rjsx-mode-variable-name-face t t)
-   ))
-
-(defvar rjsx-mode-ctemplate-font-lock-keywords
-  (list
-   '("{[~]?{[#/>^]?[ ]*\\([[:alnum:]_.-]+\\)" 1 'rjsx-mode-block-control-face)
-   '("[ \t]+\\([[:alnum:]_-]+\\)=\\([[:alnum:]_.]+\\|\"[^\"]+\"\\|'[^']+'\\|\([^)]+\)\\)"
-     (1 'rjsx-mode-block-attr-name-face)
-     (2 'rjsx-mode-block-attr-value-face))
-   '("\"[^\"]+\"" 0 'rjsx-mode-block-string-face)
-   ))
-
-(defvar rjsx-mode-razor-font-lock-keywords
-  (list
-   '("@\\([[:alnum:]_.]+\\)[ ]*[({]" 1 'rjsx-mode-block-control-face)
-   (cons (concat "\\_<\\(" rjsx-mode-razor-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   '("\\_<\\(String\\)\\_>" 1 'rjsx-mode-type-face)
-   '("\\([[:alnum:]]+:\\)" 1 'rjsx-mode-symbol-face)
-   '("\\(@[[:alnum:]_.]+\\)" 1 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-riot-font-lock-keywords
-  (list
-   '("\\(parent\\|opts\\|tags\\|this\\)\\.\\([[:alnum:]_.]+\\)"
-     (1 'rjsx-mode-constant-face)
-     (2 'rjsx-mode-variable-name-face))
-   '("\\([[:alnum:]_.]+\\)" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-closure-font-lock-keywords
-  (list
-   '("{/?\\([[:alpha:]]+\\)" 1 'rjsx-mode-block-control-face)
-   '("{param[ ]+\\([[:alnum:]]+\\)" 1 'rjsx-mode-symbol-face)
-   '("\\_<\\(true\\|false\\|null\\)\\_>" 1 'rjsx-mode-type-face)
-   (cons (concat "\\_<\\(" rjsx-mode-closure-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   '("{\\(alias\\|call\\|delcall\\|delpackage\\|deltemplate\\|namespace\\|template\\)[ ]+\\([[:alnum:].]+\\)" 2 'rjsx-mode-constant-face)
-   '("\\(allowemptydefault\\|data\\|desc\\|meaning\\|autoescape\\|private\\|variant\\)=" 0 'rjsx-mode-block-attr-name-face)
-   '("|\\([[:alpha:]]+\\)" 1 'rjsx-mode-function-call-face)
-   '("\\_<\\([[:alnum:]]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("$\\([[:alnum:]._]+\\)" 1 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-go-font-lock-keywords
-  (list
-   '("{{[ ]*\\([[:alpha:]]+\\)" 1 'rjsx-mode-block-control-face)
-   (cons (concat "\\_<\\(" rjsx-mode-go-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-go-functions "\\)\\_>") '(1 'rjsx-mode-function-call-face))
-   '("[$.]\\([[:alnum:]_]+\\)" 1 'rjsx-mode-variable-name-face t t)
-   ))
-
 (defvar rjsx-mode-expression-font-lock-keywords
   (list
    '("[[:alpha:]_]" 0 'rjsx-mode-variable-name-face)
    ))
 
-(defvar rjsx-mode-angular-font-lock-keywords
-  (list
-   '("[[:alpha:]_]" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-underscore-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-javascript-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\_<\\(_\.[[:alpha:]]+\\)(" 1 'rjsx-mode-function-call-face)
-   '("\\_<new \\([[:alnum:]_.]+\\)\\_>" 1 'rjsx-mode-type-face)
-   '("\\_<\\([[:alnum:]_]+\\):[ ]*function[ ]*(" 1 'rjsx-mode-function-name-face)
-   '("\\_<\\(var\\)\\_>[ ]+\\([[:alnum:]_]+\\)"
-     (1 'rjsx-mode-keyword-face)
-     (2 'rjsx-mode-variable-name-face))
-   ))
-
-(defvar rjsx-mode-engine-tag-font-lock-keywords
-  (list
-   '("</?\\([[:alpha:]]+\\(?:Template\\|[:.][[:alpha:]-]+\\)\\)" 1 'rjsx-mode-block-control-face)
-   '("\\_<\\([[:alpha:]-]+=\\)\\(\"[^\"]*\"\\)"
-     (1 'rjsx-mode-block-attr-name-face t t)
-     (2 'rjsx-mode-block-attr-value-face t t))
-   '("\\_<\\([[:alpha:]-]+=\\)\\('[^']*\'\\)"
-     (1 'rjsx-mode-block-attr-name-face t t)
-     (2 'rjsx-mode-block-attr-value-face t t))
-   ))
-
-(defvar rjsx-mode-jsp-font-lock-keywords
-  (list
-   '("\\(throws\\|new\\|extends\\)[ ]+\\([[:alnum:].]+\\)" 2 'rjsx-mode-type-face)
-   (cons (concat "\\_<\\(" rjsx-mode-jsp-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\(public\\|private\\)[ ]+\\([[:alpha:]]+\\)[ ]+\\([[:alnum:]._]+\\)[ ]?("
-     (2 'rjsx-mode-type-face)
-     (3 'rjsx-mode-function-name-face))
-   '("\\_<\\([[:alnum:]._]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("@\\(\\sw*\\)" 1 'rjsx-mode-variable-name-face)
-   '("\\_<\\([[:alnum:].]+\\)[ ]+[{[:alpha:]]+" 1 'rjsx-mode-type-face)
-   ))
-
-(defvar rjsx-mode-asp-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-asp-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-asp-types "\\)\\_>") '(0 'rjsx-mode-type-face))
-   (cons (concat "\\_<\\(" rjsx-mode-asp-constants "\\)\\_>") '(0 'rjsx-mode-constant-face))
-   '("\\(Class\\|new\\) \\([[:alnum:]_]+\\)" 2 'rjsx-mode-type-face)
-   '("Const \\([[:alnum:]_]+\\)" 1 'rjsx-mode-constant-face)
-   '("\\_<dim\\_>"
-     (0 'rjsx-mode-keyword-face)
-     ("[[:alnum:]_]+" nil nil (0 'rjsx-mode-variable-name-face)))
-   '("\\_<\\(public\\|private\\|sub\\|function\\)\\_> \\([[:alnum:]_]+\\)[ ]*(" 2 'rjsx-mode-function-name-face)
-   '("\\_<\\(public\\|private\\|dim\\)\\_> \\([[:alnum:]_]+\\)" 2 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-aspx-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-aspx-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\_<\\([[:alnum:].]+\\)[ ]+[[:alpha:]]+" 1 'rjsx-mode-type-face)
-   ))
-
-(defvar rjsx-mode-uel-font-lock-keywords
-  (list
-   '("[$#{]{\\|}" 0 'rjsx-mode-preprocessor-face)
-   '("\\([[:alpha:]_]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("|[ ]*\\(trim\\|x\\|u\\)" 1 'rjsx-mode-function-call-face)
-   '("[[:alpha:]_]" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-php-var-interpolation-font-lock-keywords
-  (list
-   '("[[:alpha:]_]" 0 'rjsx-mode-variable-name-face)
-   '("\".+\"\\|'.*'" 0 'rjsx-mode-string-face)
-   ))
-
-(defvar rjsx-mode-marko-font-lock-keywords
-  (list
-   '("[[:alnum:]_]+" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-freemarker-square-font-lock-keywords
-  (list
-   '("\\[/?[#@]\\([[:alpha:]_.]*\\)" 1 'rjsx-mode-block-control-face)
-   '("#\\(macro\\|function\\) \\([[:alpha:]]+\\)" 2 'rjsx-mode-function-name-face)
-   (cons (concat "\\_<\\(" rjsx-mode-freemarker-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   '("\\_<\\([[:alnum:]._]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alpha:]]\\([[:alnum:]_]+\\)?" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-freemarker-font-lock-keywords
-  (list
-   '("</?[#@]\\([[:alpha:]_.]*\\)" 1 'rjsx-mode-block-control-face)
-   '("#\\(macro\\|function\\) \\([[:alpha:]]+\\)" 2 'rjsx-mode-function-name-face)
-   (cons (concat "\\_<\\(" rjsx-mode-freemarker-keywords "\\)\\_>") '(1 'rjsx-mode-keyword-face))
-   '("\\_<\\([[:alnum:]._]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alpha:]]\\([[:alnum:]_]+\\)?" 0 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-directive-font-lock-keywords
-  (list
-   '("<%@[ ]*\\([[:alpha:]]+\\)[ ]+" 1 'rjsx-mode-block-control-face)
-   '("\\_<\\([[:alpha:]]+=\\)\\(\"[^\"]*\"\\)"
-     (1 'rjsx-mode-block-attr-name-face t t)
-     (2 'rjsx-mode-block-attr-value-face t t))
-   ))
-
-(defvar rjsx-mode-erb-font-lock-keywords
-  (list
-   '("[^:]\\(:[[:alnum:]_]+\\)" 1 'rjsx-mode-symbol-face)
-   '("\\([[:alnum:]_]+:\\)[ ]+" 1 'rjsx-mode-symbol-face)
-   (cons (concat "\\_<\\(" rjsx-mode-erb-builtins "\\)\\_>") '(0 'rjsx-mode-builtin-face))
-   (cons (concat "\\_<\\(" rjsx-mode-erb-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\_<\\(self\\|true\\|false\\|nil\\)\\_>" 0 'rjsx-mode-variable-name-face)
-   '("[@$]@?\\([[:alnum:]_]+\\)" 0 'rjsx-mode-variable-name-face)
-   '("class[ ]+\\([[:alnum:]_]+\\)" 1 'rjsx-mode-type-face)
-   '("def[ ]+\\([[:alnum:]_]+\\)" 1 'rjsx-mode-function-name-face)
-   '("\\(?:\\_<\\|::\\)\\([A-Z]+[[:alnum:]_]+\\)" 1 (unless (eq (char-after) ?\() 'rjsx-mode-type-face))
-   '("/[^/]+/" 0 'rjsx-mode-string-face)
-   ))
-
 (defvar rjsx-mode-ejs-font-lock-keywords
   rjsx-mode-javascript-font-lock-keywords)
-
-(defvar rjsx-mode-python-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-python-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   ))
-
-(defvar rjsx-mode-erlang-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-erlang-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-erlang-constants "\\)\\_>") '(0 'rjsx-mode-constant-face))
-   '("@\\([[:alnum:]_]+\\)" 0 'rjsx-mode-variable-name-face)
-   '("[ ]\\(:[[:alnum:]-_]+\\)" 1 'rjsx-mode-symbol-face)
-   ))
-
-(defvar rjsx-mode-mason-code-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-mason-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("sub[ ]+\\([[:alnum:]_]+\\)" 1 'rjsx-mode-function-name-face)
-   '("\\_<\\([[:alnum:]_]+\\)[ ]?::" 1 'rjsx-mode-type-face)
-   '("\\([@]\\)\\([[:alnum:]#_]*\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   '("\\_<\\([$%]\\)\\([[:alnum:]@#_]*\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   '("{\\([[:alnum:]_]+\\)}" 1 'rjsx-mode-variable-name-face)
-   '("\\_<\\(\\sw+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alnum:]_][ ]?::[ ]?\\([[:alnum:]_]+\\)" 1 'rjsx-mode-variable-name-face)
-   '("->[ ]?\\([[:alnum:]_]+\\)" 1 'rjsx-mode-variable-name-face)
-   '("\\(?:method\\|def\\) \\([[:alnum:]._]+\\)" 1 'rjsx-mode-function-name-face)
-   '("|[ ]*\\([[:alnum:],]+\\)[ ]*%>" 1 'rjsx-mode-filter-face)
-   ))
-
-(defvar rjsx-mode-mason-block-font-lock-keywords
-  (list
-   '("<[/]?%\\([[:alpha:]]+\\)" 1 'rjsx-mode-block-control-face)
-   '("[[:alpha:]]" 0 'rjsx-mode-block-attr-value-face)
-   ))
-
-(defvar rjsx-mode-mojolicious-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-perl-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   '("\\_<\\(begin\\|end\\)\\_>" 1 'rjsx-mode-constant-face)
-   '("\\_<\\([$]\\)\\([[:alnum:]_]*\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   ))
-
-(defvar rjsx-mode-lsp-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-lsp-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-lsp-constants "\\)\\_>") '(1 'rjsx-mode-constant-face))
-   '("[ ]\\(:[[:alnum:]-_]+\\)" 1 'rjsx-mode-symbol-face)
-   '("(defun \\([[:alnum:]-:]+\\)" 1 'rjsx-mode-function-name-face)
-   '("(defvar \\([[:alnum:]-:]+\\)" 1 'rjsx-mode-variable-name-face)
-   ))
-
-(defvar rjsx-mode-cl-emb-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-cl-emb-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   (cons (concat "\\_<\\(" rjsx-mode-cl-emb-constants "\\)\\_>") '(0 'rjsx-mode-constant-face))
-   '("\\(@\\)" 1 'rjsx-mode-function-call-face)
-   (list (concat "\\(@" rjsx-mode-cl-emb-keywords "\\)[ ]+\\([[:alnum:]_]+\\)")
-         '(1 'rjsx-mode-keyword-face)
-         '(2 'rjsx-mode-variable-name-face))
-   ))
-
-(defvar rjsx-mode-php-font-lock-keywords
-  (list
-   (cons (concat "\\_<\\(" rjsx-mode-php-keywords "\\)\\_>") '(0 'rjsx-mode-keyword-face))
-   (cons (concat "(\\_<\\(" rjsx-mode-php-types "\\)\\_>") '(1 'rjsx-mode-type-face))
-   (cons (concat "\\_<\\(" rjsx-mode-php-constants "\\)\\_>") '(0 'rjsx-mode-constant-face))
-   '("function[ ]+\\([[:alnum:]_]+\\)" 1 'rjsx-mode-function-name-face)
-   '("\\_<\\([[:alnum:]_]+\\)[ ]?(" 1 'rjsx-mode-function-call-face)
-   '("[[:alnum:]_][ ]?::[ ]?\\([[:alnum:]_]+\\)" 1 'rjsx-mode-constant-face)
-   '("->[ ]?\\([[:alnum:]_]+\\)" 1 'rjsx-mode-variable-name-face)
-   '("\\_<\\([[:alnum:]_]+\\)[ ]?::" 1 'rjsx-mode-type-face)
-   '("\\_<\\(instanceof\\|class\\|extends\\|new\\)[ ]+\\([[:alnum:]_]+\\)" 2 'rjsx-mode-type-face)
-   '("\\_<\\([$]\\)\\([[:alnum:]_]*\\)" (1 nil) (2 'rjsx-mode-variable-name-face))
-   ))
-
-(defvar rjsx-mode-latex-font-lock-keywords
-  (list
-   '("[[:alnum:]_]+" 0 'rjsx-mode-function-name-face t t)
-   ))
-
-(defvar rjsx-mode-blade-font-lock-keywords
-  (append
-   (list
-    '("@\\([[:alpha:]_]+\\)" (1 'rjsx-mode-block-control-face)))
-   rjsx-mode-php-font-lock-keywords))
-
-(defvar rjsx-mode-engines-font-lock-keywords
-  '(("angular"          . rjsx-mode-angular-font-lock-keywords)
-    ("blade"            . rjsx-mode-blade-font-lock-keywords)
-    ("cl-emb"           . rjsx-mode-cl-emb-font-lock-keywords)
-    ("closure"          . rjsx-mode-closure-font-lock-keywords)
-    ("ctemplate"        . rjsx-mode-ctemplate-font-lock-keywords)
-    ("dust"             . rjsx-mode-dust-font-lock-keywords)
-    ("elixir"           . rjsx-mode-erlang-font-lock-keywords)
-    ("ejs"              . rjsx-mode-ejs-font-lock-keywords)
-    ("erb"              . rjsx-mode-erb-font-lock-keywords)
-    ("go"               . rjsx-mode-go-font-lock-keywords)
-    ("lsp"              . rjsx-mode-lsp-font-lock-keywords)
-    ("marko"            . rjsx-mode-marko-font-lock-keywords)
-    ("mojolicious"      . rjsx-mode-mojolicious-font-lock-keywords)
-    ("php"              . rjsx-mode-php-font-lock-keywords)
-    ("python"           . rjsx-mode-python-font-lock-keywords)
-    ("razor"            . rjsx-mode-razor-font-lock-keywords)
-    ("riot"             . rjsx-mode-riot-font-lock-keywords)
-    ("smarty"           . rjsx-mode-smarty-font-lock-keywords)
-    ("template-toolkit" . rjsx-mode-template-toolkit-font-lock-keywords)
-    ("underscore"       . rjsx-mode-underscore-font-lock-keywords)
-    ("web2py"           . rjsx-mode-web2py-font-lock-keywords)
-    ("velocity"         . rjsx-mode-velocity-font-lock-keywords))
-  "Engines font-lock keywords")
 
 (defvar rjsx-mode-before-auto-complete-hooks nil
   "List of functions to run before triggering the auto-complete library.
@@ -2276,7 +1169,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
 ;;---- MAJOR MODE --------------------------------------------------------------
 
 ;;;###autoload
-(define-derived-mode rjsx-mode rjsx-mode-prog-mode "Web"
+(define-derived-mode rjsx-mode rjsx-mode-prog-mode "(React)JSX"
   "Major mode for editing web templates."
 
   (make-local-variable 'rjsx-mode-attr-indent-offset)
@@ -2290,19 +1183,11 @@ another auto-completion with different ac-sources (e.g. ac-php)")
   (make-local-variable 'rjsx-mode-comment-formats)
   (make-local-variable 'rjsx-mode-comment-style)
   (make-local-variable 'rjsx-mode-content-type)
-  (make-local-variable 'rjsx-mode-css-indent-offset)
   (make-local-variable 'rjsx-mode-display-table)
-  (make-local-variable 'rjsx-mode-django-control-blocks)
-  (make-local-variable 'rjsx-mode-django-control-blocks-regexp)
   (make-local-variable 'rjsx-mode-enable-block-face)
   (make-local-variable 'rjsx-mode-enable-inlays)
   (make-local-variable 'rjsx-mode-enable-part-face)
   (make-local-variable 'rjsx-mode-enable-sexp-functions)
-  (make-local-variable 'rjsx-mode-engine)
-  (make-local-variable 'rjsx-mode-engine-attr-regexp)
-  (make-local-variable 'rjsx-mode-engine-file-regexps)
-  (make-local-variable 'rjsx-mode-engine-open-delimiter-regexps)
-  (make-local-variable 'rjsx-mode-engine-token-regexp)
   (make-local-variable 'rjsx-mode-expand-initial-pos)
   (make-local-variable 'rjsx-mode-expand-initial-scroll)
   (make-local-variable 'rjsx-mode-expand-previous-state)
@@ -2317,7 +1202,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
   (make-local-variable 'rjsx-mode-minor-engine)
   (make-local-variable 'rjsx-mode-overlay-tag-end)
   (make-local-variable 'rjsx-mode-overlay-tag-start)
-  (make-local-variable 'rjsx-mode-sql-indent-offset)
   (make-local-variable 'rjsx-mode-time)
 
   (make-local-variable 'comment-end)
@@ -2405,29 +1289,18 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                (inhibit-quit t))
            (remove-list-of-text-properties beg end rjsx-mode-scan-properties)
            (cond
-            ((and content-type (string= content-type "php"))
-;;             (rjsx-mode-block-scan beg end)
-             )
             ((and content-type (member content-type rjsx-mode-part-content-types))
              (put-text-property beg end 'part-side
                                 (cond
                                  ((string= content-type "javascript") 'javascript)
                                  ((string= content-type "json") 'json)
                                  ((string= content-type "jsx") 'jsx)
-                                 ((string= content-type "css") 'css)
-                                 ((string= content-type "sql") 'sql)
-                                 ((string= content-type "stylus") 'stylus)
-                                 ((string= content-type "markdown") 'markdown)
                                  ))
              (rjsx-mode-scan-blocks beg end)
              (rjsx-mode-part-scan beg end content-type))
             ((member rjsx-mode-content-type rjsx-mode-part-content-types)
              (rjsx-mode-scan-blocks beg end)
              (rjsx-mode-part-scan beg end))
-            ((string= rjsx-mode-engine "riot")
-             (rjsx-mode-scan-elements beg end)
-             (rjsx-mode-scan-blocks beg end)
-             (rjsx-mode-process-parts beg end 'rjsx-mode-part-scan))
             (t
              (rjsx-mode-scan-blocks beg end)
              (rjsx-mode-scan-elements beg end)
@@ -2471,416 +1344,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                 sub2 (substring tagopen 0 (if (>= l 2) 2 1)))
           )
         ;;(message " found block #(%S) at pos=(%S), part-type=(%S)" i open (get-text-property open 'part-side))
-        (cond
-
-         ((string= rjsx-mode-engine "php")
-          (unless (member (char-after) '(?x ?X))
-            (setq closing-string '("<\\?". "\\?>")))
-          (cond
-           ((looking-at-p "<?php")
-            (setq delim-open "<?php"))
-           ((eq (char-after) ?\=)
-            (setq delim-open "<?="))
-           (t
-            (setq delim-open "<?"))
-           ) ;cond
-          (setq delim-close "?>")
-          ) ;php
-
-         ((string= rjsx-mode-engine "erb")
-          (cond
-           ((string= sub2 "<%")
-            (setq closing-string '("<%". "%>")
-                  delim-open "<%[=-]?"
-                  delim-close "[-]?%>")
-            )
-           (t
-            (setq closing-string "EOL"
-                  delim-open "%"))
-           )
-          ) ;erb
-
-         ((string= rjsx-mode-engine "django")
-          (cond
-           ((string= sub2 "{{")
-            (setq closing-string '("{{" . "}}")
-                  delim-open "{{"
-                  delim-close "}}"))
-           ((string= sub2 "{%")
-            (setq closing-string "%}"
-                  delim-open "{%[+-]?"
-                  delim-close "[-]?%}"))
-           (t
-            (setq closing-string "#}"))
-           )
-          ) ;django
-
-         ((string= rjsx-mode-engine "ejs")
-          (setq closing-string "%>"
-                delim-open "<%[=-]?"
-                delim-close "[-]?%>")
-          ) ;ejs
-
-         ((string= rjsx-mode-engine "lsp")
-          (setq closing-string "%>"
-                delim-open "<%[%#]?"
-                delim-close "%>")
-          ) ;lsp
-
-         ((string= rjsx-mode-engine "mako")
-          (cond
-           ((and (string= tagopen "<%")
-                 (member (char-after) '(?\s ?\n ?\!)))
-            (setq closing-string "%>"
-                  delim-open "<%[!]?"
-                  delim-close "%>"))
-           ((member sub2 '("<%" "</"))
-            (setq closing-string ">"
-                  delim-open "</?%"
-                  delim-close "/?>"))
-           ((string= sub2 "${")
-            (setq closing-string "}"
-                  delim-open "${"
-                  delim-close "}"))
-           (t
-            (setq closing-string "EOL"
-                  delim-open "%"))
-           )
-          ) ;mako
-
-         ((string= rjsx-mode-engine "cl-emb")
-          (cond
-           ((string= tagopen "<%#")
-            (setq closing-string "#%>"))
-           ((string= sub2 "<%")
-            (setq closing-string "%>"
-                  delim-open "<%[=%]?"
-                  delim-close "%>"))
-           )
-          ) ;cl-emb
-
-         ((string= rjsx-mode-engine "elixir")
-          (cond
-           ((string= tagopen "<%#")
-            (setq closing-string "%>"))
-           ((string= sub2 "<%")
-            (setq closing-string "%>"
-                  delim-open "<%[=%]?"
-                  delim-close "%>"))
-           )
-          ) ;elixir
-
-         ((string= rjsx-mode-engine "mojolicious")
-          (cond
-           ((string= tagopen "<%#")
-            (setq closing-string "%>"))
-           ((string= sub2 "<%")
-            (setq closing-string "%>"
-                  delim-open "<%\\(==\\|[=%]\\)?"
-                  delim-close "%>"))
-           ((string= sub2 "%#")
-            (setq closing-string "EOL"))
-           (t
-            (setq closing-string "EOL"
-                  delim-open "%\\(==\\|[=%]\\)?"))
-           )
-          ) ;mojolicious
-
-         ((string= rjsx-mode-engine "ctemplate")
-          (cond
-           ((member tagopen '("{{{" "{{~"))
-            (setq closing-string "}~?}}"
-                  delim-open "{{~?{"
-                  delim-close "}~?}}")
-            )
-           ((string= tagopen "{~{")
-            (setq closing-string "}~?}"
-                  delim-open "{~{"
-                  delim-close "}~?}")
-            )
-           ((string= tagopen "{{!")
-            (setq closing-string (if (looking-at-p "--") "--}}" "}}"))
-            )
-           ((string= sub2 "{{")
-            (setq closing-string "}~?}"
-                  delim-open "{{[>#/%^&]?"
-                  delim-close "}~?}"))
-           (t
-            (setq closing-string "}}"
-                  delim-open "${{"
-                  delim-close "}}"))
-           )
-          ) ;ctemplate
-
-         ((string= rjsx-mode-engine "aspx")
-          (setq closing-string "%>"
-                delim-open "<%[:=#@$]?"
-                delim-close "%>")
-          ) ;aspx
-
-         ((string= rjsx-mode-engine "asp")
-          (cond
-           ((string= sub2 "<%")
-            (setq closing-string "%>"
-                  delim-open "<%[:=#@$]?"
-                  delim-close "%>"))
-           (t
-            (setq closing-string ">"
-                  delim-open "</?"
-                  delim-close "/?>"))
-           )
-          ) ;asp
-
-         ((string= rjsx-mode-engine "jsp")
-          (cond
-           ((looking-at-p "--")
-            (setq closing-string "--%>"))
-           ((string= sub2 "<%")
-            (setq closing-string "%>"
-                  delim-open "<%\\([!=@]\\|#=\\)?"
-                  delim-close "[-]?%>"))
-           ((string= sub2 "${")
-            (setq closing-string "}"
-                  delim-open "${"
-                  delim-close "}"))
-           )
-          ) ;jsp
-
-         ((string= rjsx-mode-engine "clip")
-          (setq closing-string ">"
-                delim-open "</?"
-                delim-close "/?>")
-          ) ;clip
-
-         ((string= rjsx-mode-engine "blade")
-          (cond
-           ((string= tagopen "{{-")
-            (setq closing-string "--}}"))
-           ((string= tagopen "{!!")
-            (setq closing-string "!!}"
-                  delim-open "{!!"
-                  delim-close "!!}"))
-           ((string= tagopen "@{{")
-            (setq closing-string nil))
-           ((string= tagopen "{{{")
-            (setq closing-string "}}}"
-                  delim-open "{{{"
-                  delim-close "}}}"))
-           ((string= sub2 "{{")
-            (setq closing-string "}}"
-                  delim-open "{{"
-                  delim-close "}}"))
-           ((looking-at-p "[[:alnum:]]+\\.[[:alpha:]]+")
-            )
-           ((string= sub2 "@y")
-            (setq closing-string ")"
-                  delim-open "@"))
-           ((string= sub1 "@")
-            (setq closing-string "EOL"
-                  delim-open "@"))
-           )
-          ) ;blade
-
-         ((string= rjsx-mode-engine "smarty")
-          (cond
-           ((string= tagopen "{*")
-            (setq closing-string "*}")
-            )
-           ((string= tagopen "{#")
-            (setq closing-string "#}"
-                  delim-open "{#"
-                  delim-close "#}")
-            )
-           (t
-            (setq closing-string (cons "{" "}")
-                  delim-open "{/?"
-                  delim-close "}")
-            ) ;t
-           ) ;cond
-          ) ;smarty
-
-         ((string= rjsx-mode-engine "web2py")
-          (setq closing-string "}}"
-                delim-open "{{[=]?"
-                delim-close "}}")
-          ) ;web2py
-
-         ((string= rjsx-mode-engine "dust")
-          (cond
-           ((string= sub2 "{!")
-            (setq closing-string "!}"))
-           (t
-            (setq closing-string '("{". "}") ;;closing-string "}"
-                  delim-open "{[#/:?@><+^]?"
-                  delim-close "/?}")
-            )
-           )
-          ) ;dust
-
-         ((string= rjsx-mode-engine "closure")
-          (cond
-           ((string= sub2 "//")
-            (setq closing-string "EOL")
-            )
-           ((string= sub2 "/*")
-            (setq closing-string "*/")
-            )
-           (t
-            (setq closing-string "}"
-                  delim-open "{/?"
-                  delim-close "/?}")
-            )
-           )
-          ) ;closure
-
-         ((string= rjsx-mode-engine "go")
-          (setq closing-string "}}"
-                delim-open "{{"
-                delim-close "}}")
-          ) ;go
-
-         ((string= rjsx-mode-engine "angular")
-          (setq closing-string "}}"
-                delim-open "{{"
-                delim-close "}}")
-          ) ;angular
-
-         ((string= rjsx-mode-engine "mason")
-          (cond
-           ((and (member sub2 '("<%" "</"))
-                 (looking-at "[[:alpha:]]+"))
-            (if (member (match-string-no-properties 0) '("after" "around" "augment" "before" "def" "filter" "method" "override"))
-                (setq closing-string ">"
-                      delim-open "<[/]?%"
-                      delim-close ">")
-              (setq closing-string (concat "</%" (match-string-no-properties 0) ">")
-                    delim-open "<[^>]+>"
-                    delim-close "<[^>]+>")
-              ) ;if
-            )
-           ((and (string= sub2 "<%")
-                 (eq (char-after) ?\s))
-            (setq closing-string "%>"
-                  delim-open "<%"
-                  delim-close "%>"))
-           ((string= tagopen "</&")
-            (setq closing-string ">"
-                  delim-open "</&"
-                  delim-close ">")
-            )
-           ((string= sub2 "<&")
-            (setq closing-string "&>"
-                  delim-open "<&[|]?"
-                  delim-close "&>"))
-           (t
-            (setq closing-string "EOL"
-                  delim-open "%"))
-           )
-          ) ;mason
-
-         ((string= rjsx-mode-engine "underscore")
-          (setq closing-string "%>"
-                delim-open "<%"
-                delim-close "%>")
-          ) ;underscore
-
-         ((string= rjsx-mode-engine "template-toolkit")
-          (cond
-           ((string= tagopen "%%#")
-            (setq closing-string "EOL"))
-           ((string= tagopen "[%#")
-            (setq closing-string "%]"))
-           (t
-            (setq closing-string "%]"
-                  delim-open "\\[%[-+]?"
-                  delim-close "[-=+]?%\\]"))
-           )
-          ) ;template-toolkit
-
-         ((string= rjsx-mode-engine "freemarker")
-          (cond
-           ((and (string= sub2 "<#") (eq (char-after) ?\-))
-            (setq closing-string "-->"))
-           ((string= sub1 "<")
-            (setq closing-string ">"
-                  delim-open "</?[#@]"
-                  delim-close "/?>"))
-           ((string= sub1 "[")
-            (setq closing-string "]"
-                  delim-open "\\[/?[#@]"
-                  delim-close "/?\\]"))
-           (t
-            (setq closing-string "}"
-                  delim-open "${"
-                  delim-close "}"))
-           )
-          ) ;freemarker
-
-         ((string= rjsx-mode-engine "velocity")
-          (cond
-           ((string= sub2 "##")
-            (setq closing-string "EOL"))
-           ((string= sub2 "#*")
-            (setq closing-string "*#"))
-           (t
-            (setq closing-string "EOV"
-                  delim-open "#"))
-           )
-          ) ;velocity
-
-         ((string= rjsx-mode-engine "razor")
-          (cond
-           ((string= sub2 "@@")
-            (forward-char 2)
-            (setq closing-string nil))
-           ((string= sub2 "@*")
-            (setq closing-string "*@"))
-           ((string= sub1 "@")
-            (setq closing-string "EOR"
-                  delim-open "@"))
-           ((and (string= sub1 "}")
-                 (looking-at-p "[ ]*\n"))
-            ;;(setq closing-string "EOC")
-            (save-excursion
-              (let (paren-pos)
-                (setq paren-pos (rjsx-mode-part-opening-paren-position (1- (point))))
-                (if (and paren-pos (get-text-property paren-pos 'block-side))
-                    (setq closing-string "EOC")
-                  (setq closing-string nil)
-                  ) ;if
-                ) ;let
-              ) ;save-excursion
-            ;;(message "%s %S %S" sub2 (point) (get-text-property (point) 'part-side))
-            )
-           ((string= sub1 "}")
-            ;;(message "%s: %s" (point) sub1)
-            (save-excursion
-              (let (paren-pos)
-                (setq paren-pos (rjsx-mode-part-opening-paren-position (1- (point))))
-                (if (and paren-pos (get-text-property paren-pos 'block-side))
-                    (setq closing-string "EOR")
-                  (setq closing-string nil)
-                  ) ;if
-                ) ;let
-              ) ;save-excursion
-            ) ;case }
-           ) ;cond
-          ) ;razor
-
-         ((and (string= rjsx-mode-engine "riot")
-               (not (get-text-property open 'part-side)))
-          (setq closing-string "}"
-                delim-open "{"
-                delim-close "}")
-          ) ;riot
-
-         ((string= rjsx-mode-engine "marko")
-          (setq closing-string "}"
-                delim-open "${"
-                delim-close "}")
-          ) ;marko
-
-         ) ;cond
 
         (when closing-string
 
@@ -2892,49 +1355,8 @@ another auto-completion with different ac-sources (e.g. ac-php)")
               (setq close (match-end 0)
                     pos (point))
               )
-             ((and (string= rjsx-mode-engine "php")
-                   (string= "<?" sub2))
-
-              (if (or (text-property-not-all (1+ open) (point-max) 'tag-beg nil)
-                      (text-property-not-all (1+ open) (point-max) 'block-beg nil)
-                      (looking-at-p "[ \t\n]*<"))
-                  (setq close nil
-                        delim-close nil
-                        pos (point))
-                (setq close (point-max)
-                      delim-close nil
-                      pos (point-max))
-                ) ;if
-              ) ;case
              ) ;cond
             ) ;case listp
-
-           ((and (string= rjsx-mode-engine "smarty")
-                 (string= closing-string "}"))
-            (goto-char open)
-            (setq tmp (rjsx-mode-closing-delimiter-position
-                       "}"
-                       (point)
-                       (line-end-position)))
-            (if tmp
-                (setq tmp (1+ tmp))
-              (setq tmp (line-end-position)))
-            (goto-char tmp)
-            (setq close (point)
-                  pos (point))
-            )
-
-           ((and (member rjsx-mode-engine '("closure"))
-                 (string= closing-string "}"))
-            (goto-char open)
-            (setq tmp (rjsx-mode-closing-paren-position (point) (line-end-position)))
-            (if tmp
-                (setq tmp (1+ tmp))
-              (setq tmp (line-end-position)))
-            (goto-char tmp)
-            (setq close (point)
-                  pos (point))
-            )
 
            ((string= closing-string "EOL")
             (end-of-line)
@@ -2956,11 +1378,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             (setq close (point)
                   pos (point)))
 
-           ((and (member rjsx-mode-engine '("ctemplate"))
-                 (re-search-forward closing-string reg-end t))
-            (setq close (match-end 0)
-                  pos (point)))
-
            ((search-forward closing-string reg-end t)
             (setq close (match-end 0)
                   pos (point)))
@@ -2975,17 +1392,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             (when delim-open
               (rjsx-mode-block-delimiters-set open close delim-open delim-close))
             (rjsx-mode-block-scan open close)
-            (cond
-             ((and (string= rjsx-mode-engine "erb")
-                   (looking-at-p "<%= javascript_tag do %>"))
-              (setq tagopen "<%= javascript_tag do %>"))
-             ((and (string= rjsx-mode-engine "mako")
-                   (looking-at-p "<%block filter=\"collect_js\">"))
-              (setq tagopen "<%block filter=\"collect_js\">"))
-             ((and (string= rjsx-mode-engine "mako")
-                   (looking-at-p "<%block filter=\"collect_css\">"))
-              (setq tagopen "<%block filter=\"collect_css\">"))
-             )
             ;;(message "%S %s" (point) tagopen)
             (when (and (member tagopen '("<r:script" "<r:style"
                                          "<c:js" "<c:css"
@@ -3022,42 +1428,11 @@ another auto-completion with different ac-sources (e.g. ac-php)")
           ) ;when closing-string
 
         ) ;while
-
-      (cond
-       ((>= i 2000)
-        (message "scan-blocks ** warning (%S) **" i))
-       ((string= rjsx-mode-engine "razor")
-        (rjsx-mode-process-blocks reg-beg reg-end 'rjsx-mode-block-scan))
-       ((string= rjsx-mode-engine "django")
-        (rjsx-mode-scan-engine-comments reg-beg reg-end
-                                       "{% comment %}" "{% endcomment %}"))
-       ((string= rjsx-mode-engine "mako")
-        (rjsx-mode-scan-engine-comments reg-beg reg-end
-                                       "<%doc>" "</%doc>"))
-       ((string= rjsx-mode-engine "mason")
-        (rjsx-mode-scan-engine-comments reg-beg reg-end
-                                       "<%doc>" "</%doc>"))
-       ) ;cond
-
       )))
 
 (defun rjsx-mode-block-delimiters-set (reg-beg reg-end delim-open delim-close)
   "Set text-property 'block-token to 'delimiter-(beg|end) on block delimiters (e.g. <?php ?>)"
   ;;(message "reg-beg(%S) reg-end(%S) delim-open(%S) delim-close(%S)" reg-beg reg-end delim-open delim-close)
-  (when (member rjsx-mode-engine
-                '("asp" "aspx" "cl-emb" "clip" "closure" "ctemplate" "django" "dust"
-                  "elixir" "ejs" "erb" "freemarker" "jsp" "lsp" "mako" "mason" "mojolicious"
-                  "smarty" "template-toolkit" "web2py"))
-    (save-excursion
-      (when delim-open
-        (goto-char reg-beg)
-        (looking-at delim-open)
-        (setq delim-open (match-string-no-properties 0)))
-      (when delim-close
-        (goto-char reg-end)
-        (looking-back delim-close reg-beg t)
-        (setq delim-close (match-string-no-properties 0)))
-      ))
   (when delim-open
     (put-text-property reg-beg (+ reg-beg (length delim-open))
                        'block-token 'delimiter-beg))
@@ -3139,202 +1514,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
      )
 
     (cond
-
-     ((member rjsx-mode-engine '("php" "lsp" "python" "web2py" "mason"))
-      (setq regexp rjsx-mode-engine-token-regexp))
-
-     ((string= rjsx-mode-engine "mako")
-      (cond
-       ((string= sub2 "##")
-        (setq token-type 'comment)
-        )
-       (t
-        (setq regexp rjsx-mode-engine-token-regexp))
-       )
-      ) ;mako
-
-     ((string= rjsx-mode-engine "django")
-      (cond
-       ((member sub2 '("{{" "{%"))
-        (setq regexp "\"\\|'"))
-       ((string= sub2 "{#")
-        (setq token-type 'comment))
-       )
-      ) ;django
-
-     ((string= rjsx-mode-engine "ctemplate")
-      (cond
-       ((string= sub3 "{{!")
-        (setq token-type 'comment))
-       ((member sub2 '("{{"))
-        )
-       )
-      ) ;ctemplate
-
-     ((string= rjsx-mode-engine "go")
-      (cond
-       ((string= sub3 "{{/")
-        (setq token-type 'comment))
-       ((string= sub2 "{{")
-        (setq regexp "\"\\|'"))
-       )
-      ) ;go
-
-     ((string= rjsx-mode-engine "razor")
-      (cond
-       ((string= sub2 "@*")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "//\\|@\\*\\|\"\\|'"))
-       )
-      ) ;razor
-
-     ((string= rjsx-mode-engine "blade")
-      (cond
-       ((string= sub3 "{{-")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;blade
-
-     ((string= rjsx-mode-engine "cl-emb")
-      (cond
-       ((string= sub3 "<%#")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;cl-emb
-
-     ((string= rjsx-mode-engine "elixir")
-      (cond
-       ((string= sub3 "<%#")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;elixir
-
-     ((string= rjsx-mode-engine "mojolicious")
-      (cond
-       ((or (string= sub2 "%#") (string= sub3 "<%#"))
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;mojolicious
-
-     ((string= rjsx-mode-engine "velocity")
-      (cond
-       ((member sub2 '("##" "#*"))
-        (setq token-type 'comment))
-       ((member sub1 '("$" "#"))
-        (setq regexp "\"\\|'"))
-       )
-      ) ;velocity
-
-     ((string= rjsx-mode-engine "jsp")
-      (cond
-       ((string= sub3 "<%-")
-        (setq token-type 'comment))
-       ((string= sub3 "<%@")
-        (setq regexp "/\\*"))
-       ((member sub2 '("${" "#{"))
-        (setq regexp "\"\\|'"))
-       ((string= sub2 "<%")
-        (setq regexp "//\\|/\\*\\|\"\\|'"))
-       )
-      ) ;jsp
-
-     ((string= rjsx-mode-engine "clip")
-      (setq regexp nil)
-      ) ;clip
-
-     ((and (string= rjsx-mode-engine "asp")
-           (string= sub2 "<%"))
-      (setq regexp "//\\|/\\*\\|\"\\|'")
-      ) ;asp
-
-     ((string= rjsx-mode-engine "aspx")
-      (cond
-       ((string= sub3 "<%-")
-        (setq token-type 'comment))
-       ((string= sub3 "<%@")
-        (setq regexp "/\\*"))
-       ((string= sub3 "<%$")
-        (setq regexp "\"\\|'"))
-       (t
-        (setq regexp "//\\|/\\*\\|\"\\|'"))
-       )
-      ) ;aspx
-
-     ((string= rjsx-mode-engine "freemarker")
-      (cond
-       ((member sub3 '("<#-" "[#-"))
-        (setq token-type 'comment))
-       ((member sub2 '("${" "#{"))
-        (setq regexp "\"\\|'"))
-       ((or (member sub2 '("<@" "[@" "<#" "[#"))
-            (member sub3 '("</@" "[/@" "</#" "[/#")))
-        (setq regexp "\"\\|'"))
-       )
-      ) ;freemarker
-
-     ((member rjsx-mode-engine '("ejs" "erb"))
-      (cond
-       ((string= sub3 "<%#")
-        (setq token-type 'comment))
-       (t
-        (setq regexp rjsx-mode-engine-token-regexp))
-       )
-      ) ;erb
-
-     ((string= rjsx-mode-engine "template-toolkit")
-      (cond
-       ((member sub3 '("[%#" "%%#"))
-        (setq token-type 'comment))
-       (t
-        (setq regexp "#\\|\"\\|'"))
-       )
-      ) ;template-toolkit
-
-     ((string= rjsx-mode-engine "underscore")
-      (setq regexp "/\\*\\|\"\\|'")
-      ) ;underscore
-
-     ((string= rjsx-mode-engine "angular")
-      ) ;angular
-
-     ((string= rjsx-mode-engine "smarty")
-      (cond
-       ((string= sub2 "{*")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'")))
-      ) ;smarty
-
-     ((string= rjsx-mode-engine "dust")
-      (cond
-       ((string= sub2 "{!")
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;dust
-
-     ((string= rjsx-mode-engine "closure")
-      (cond
-       ((member sub2 '("/*" "//"))
-        (setq token-type 'comment))
-       (t
-        (setq regexp "\"\\|'"))
-       )
-      ) ;closure
-
-     ) ;cond
-
-    (cond
      (token-type
       (put-text-property block-beg block-end 'block-token token-type))
      ((and regexp
@@ -3349,7 +1528,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
     ))
 
 (defun rjsx-mode-block-tokenize (reg-beg reg-end &optional regexp)
-  (unless regexp (setq regexp rjsx-mode-engine-token-regexp))
   ;;(message "tokenize: reg-beg(%S) reg-end(%S) regexp(%S)" reg-beg reg-end regexp)
   ;;(message "tokenize: reg-beg(%S) reg-end(%S) command(%S)" reg-beg reg-end this-command)
   ;;(message "%S>%S : %S" reg-beg reg-end (buffer-substring-no-properties reg-beg reg-end))
@@ -3374,10 +1552,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
               token-end (if (< reg-end (line-end-position)) reg-end (line-end-position))
               char (aref match 0))
         (cond
-
-         ((and (string= rjsx-mode-engine "asp")
-               (eq char ?\'))
-          (goto-char token-end))
 
          ((eq char ?\')
           (setq token-type 'string)
@@ -3451,40 +1625,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
 
       )))
 
-(defun rjsx-mode-set-php-controls (reg-beg reg-end)
-  (goto-char reg-beg)
-  (let (match controls
-        (continue t)
-        (regexp "endif\\|endforeach\\|endfor\\|endwhile\\|elseif\\|else\\|if\\|foreach\\|for\\|while"))
-    (while continue
-      (if (not (rjsx-mode-block-rsf regexp reg-end))
-          (setq continue nil)
-        (setq match (match-string-no-properties 0))
-;;        (message "%S %S" match (point))
-        (cond
-         ((and (member match '("else" "elseif"))
-               (looking-at-p "[ ]*[:(]"))
-          (setq controls (append controls (list (cons 'inside "if"))))
-          )
-         ((and (>= (length match) 3)
-               (string= (substring match 0 3) "end"))
-          (setq controls (append controls (list (cons 'close (substring match 3)))))
-          )
-         ((and (progn (skip-chars-forward "[ ]") t)
-               (eq (char-after) ?\()
-               (rjsx-mode-closing-paren reg-end)
-               ;;(progn (message "ixi%S" (point)))
-               (looking-at-p ")[ ]*:"))
-          (setq controls (append controls (list (cons 'open match))))
-          )
-         ) ;cond
-        ) ;if
-      ) ;while
-    ;;(message "%S-%S %S" reg-beg reg-end controls)
-    (when (and controls (> (length controls) 1))
-      (setq controls (rjsx-mode-block-controls-reduce controls)))
-    controls))
-
 (defun rjsx-mode-block-controls-reduce (controls)
   (when (and (eq (car (car controls)) 'open)
              (member (cons 'close (cdr (car controls))) controls))
@@ -3531,398 +1671,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
        ((null rjsx-mode-engine)
         (message "block-controls-set ** unknown engine (%S) **" rjsx-mode-engine)
         )
-
-       ((string= rjsx-mode-engine "php")
-        (setq controls (rjsx-mode-set-php-controls reg-beg reg-end))
-        (when (rjsx-mode-block-starts-with "}" reg-beg)
-          (setq controls (append controls (list (cons 'close "{")))))
-        (when (rjsx-mode-block-ends-with (cons "{" "}") reg-beg)
-          (setq controls (append controls (list (cons 'open "{")))))
-        ) ;php
-
-       ((string= rjsx-mode-engine "ejs")
-        (cond
-         ((rjsx-mode-block-ends-with "}[ ]*else[ ]*{" reg-beg)
-          (setq controls (append controls (list (cons 'inside "{")))))
-         ((rjsx-mode-block-starts-with "}" reg-beg)
-          (setq controls (append controls (list (cons 'close "{")))))
-         ((rjsx-mode-block-ends-with "{" reg-beg)
-          (setq controls (append controls (list (cons 'open "{")))))
-         )
-        ) ;ejs
-
-       ((string= rjsx-mode-engine "erb")
-        (cond
-         ((rjsx-mode-block-starts-with "else\\|elsif\\|when" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-starts-with "end" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-ends-with " do\\( |.*|\\)?" reg-beg)
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         ((and (rjsx-mode-block-starts-with "\\(for\\|if\\|unless\\|case\\)\\_>" reg-beg)
-               (not (rjsx-mode-block-ends-with "end" reg-end)))
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;erb
-
-       ((string= rjsx-mode-engine "django")
-        (when (eq (char-after (1+ reg-beg)) ?\%)
-          (cond
-           ((and (string= rjsx-mode-minor-engine "jinja") ;#504
-                 (rjsx-mode-block-starts-with "else\\_>" reg-beg))
-            (let ((continue t)
-                  (pos reg-beg)
-                  (ctrl nil))
-              (while continue
-                (cond
-                 ((null (setq pos (rjsx-mode-block-control-previous-position 'open pos)))
-                  (setq continue nil))
-                 ((member (setq ctrl (cdr (car (get-text-property pos 'block-controls)))) '("if" "ifequal" "ifnotequal" "for"))
-                  (setq continue nil)
-                  )
-                 ) ;cond
-                )
-              (setq controls (append controls (list (cons 'inside (or ctrl "if")))))
-              )
-            )
-           ((rjsx-mode-block-starts-with "\\(else\\|els?if\\)" reg-beg)
-            (let ((continue t)
-                  (pos reg-beg)
-                  (ctrl nil))
-              (while continue
-                (cond
-                 ((null (setq pos (rjsx-mode-block-control-previous-position 'open pos)))
-                  (setq continue nil))
-                 ((member (setq ctrl (cdr (car (get-text-property pos 'block-controls)))) '("if" "ifequal" "ifnotequal"))
-                  (setq continue nil)
-                  )
-                 ) ;cond
-                ) ;while
-              (setq controls (append controls (list (cons 'inside (or ctrl "if")))))
-              ) ;let
-            ) ;case else
-           ((rjsx-mode-block-starts-with "\\(empty\\)" reg-beg)
-            (setq controls (append controls (list (cons 'inside "for")))))
-           ((rjsx-mode-block-starts-with "end\\([[:alpha:]]+\\)" reg-beg)
-            (setq controls (append controls (list (cons 'close (match-string-no-properties 1))))))
-           ((rjsx-mode-block-starts-with (concat rjsx-mode-django-control-blocks-regexp "[ %]") reg-beg)
-            (let (control)
-              (setq control (match-string-no-properties 1))
-              ;;(message "%S %S %S" control (concat "end" control) rjsx-mode-django-control-blocks)
-              (when (member (concat "end" control) rjsx-mode-django-control-blocks)
-                (setq controls (append controls (list (cons 'open control))))
-                ) ;when
-              ) ;let
-            ) ;case
-           ) ;cond
-          ) ;when
-        ) ;django
-
-       ((string= rjsx-mode-engine "smarty")
-        (cond
-         ((and (eq (char-after (1+ reg-beg)) ?\/)
-               (rjsx-mode-block-starts-with "\\([[:alpha:]]+\\)" reg-beg))
-          (setq controls (append controls (list (cons 'close (match-string-no-properties 1))))))
-         ((rjsx-mode-block-starts-with "\\(else\\|elseif\\)" reg-beg)
-          (setq controls (append controls (list (cons 'inside "if")))))
-         ((rjsx-mode-block-starts-with "\\(block\\|foreach\\|for\\|if\\|section\\|while\\)")
-          (setq controls (append controls (list (cons 'open (match-string-no-properties 1))))))
-         )
-        ) ;smarty
-
-       ((string= rjsx-mode-engine "web2py")
-        (cond
-         ((rjsx-mode-block-starts-with "def" reg-beg)
-          (setq controls (append controls (list (cons 'open "def")))))
-         ((rjsx-mode-block-starts-with "return" reg-beg)
-          (setq controls (append controls (list (cons 'close "def")))))
-         ((rjsx-mode-block-starts-with "block" reg-beg)
-          (setq controls (append controls (list (cons 'open "block")))))
-         ((rjsx-mode-block-starts-with "end" reg-beg)
-          (setq controls (append controls (list (cons 'close "block")))))
-         ((rjsx-mode-block-starts-with "pass" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-starts-with "\\(except\\|finally\\|els\\)" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-starts-with "\\(if\\|for\\|try\\|while\\)")
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;web2py
-
-       ((string= rjsx-mode-engine "dust")
-        (cond
-         ((eq (char-after (1- reg-end)) ?\/)
-          )
-         ((eq (char-after (1+ reg-beg)) ?\:)
-          (setq pos (rjsx-mode-block-control-previous-position 'open reg-beg))
-          (when pos
-            (setq controls (append controls
-                                   (list
-                                    (cons 'inside
-                                          (cdr (car (rjsx-mode-block-controls-get pos))))))))
-          )
-         ((looking-at "{/\\([[:alpha:].]+\\)")
-          (setq controls (append controls (list (cons 'close (match-string-no-properties 1))))))
-         ((looking-at "{[#?@><+^]\\([[:alpha:].]+\\)")
-          (setq controls (append controls (list (cons 'open (match-string-no-properties 1))))))
-         )
-        ) ;dust
-
-       ((member rjsx-mode-engine '("mojolicious"))
-        (cond
-         ((rjsx-mode-block-ends-with "begin" reg-beg)
-          (setq controls (append controls (list (cons 'open "begin")))))
-         ((rjsx-mode-block-starts-with "end" reg-beg)
-          (setq controls (append controls (list (cons 'close "begin")))))
-         ((rjsx-mode-block-starts-with "}[ ]*else[ ]*{" reg-beg)
-          (setq controls (append controls (list (cons 'inside "{")))))
-         ((rjsx-mode-block-starts-with "}" reg-beg)
-          (setq controls (append controls (list (cons 'close "{")))))
-         ((rjsx-mode-block-ends-with "{" reg-beg)
-          (setq controls (append controls (list (cons 'open "{")))))
-         )
-        ) ;mojolicious
-
-       ((member rjsx-mode-engine '("aspx" "underscore"))
-        (cond
-         ((and (rjsx-mode-block-starts-with "}" reg-beg)
-               (rjsx-mode-block-ends-with "{" reg-beg))
-          (setq controls (append controls (list (cons 'inside "{")))))
-         ((rjsx-mode-block-starts-with "}" reg-beg)
-          (setq controls (append controls (list (cons 'close "{")))))
-         ((rjsx-mode-block-ends-with "{" reg-beg)
-          (setq controls (append controls (list (cons 'open "{")))))
-         )
-        ) ;aspx underscore
-
-       ((member rjsx-mode-engine '("jsp" "asp" "clip"))
-        (cond
-         ((eq (char-after (1- reg-end)) ?\/)
-          )
-         ((looking-at "</?\\([[:alpha:]]+\\(?:[:.][[:alpha:]]+\\)\\|[[:alpha:]]+Template\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (when (not (member control '("h:inputtext" "jsp:usebean" "jsp:forward" "struts:property")))
-            (setq controls (append controls (list (cons type control)))))
-          )
-         (t
-          (when (rjsx-mode-block-starts-with "}" reg-beg)
-            (setq controls (append controls (list (cons 'close "{")))))
-          (when (rjsx-mode-block-ends-with "{" reg-beg)
-            (setq controls (append controls (list (cons 'open "{")))))
-          )
-         )
-        ) ;jsp asp
-
-       ((string= rjsx-mode-engine "mako")
-        (cond
-         ((looking-at "</?%\\([[:alpha:]]+\\(?:[:][[:alpha:]]+\\)?\\)")
-          (cond
-           ((eq (char-after (- (rjsx-mode-block-end-position reg-beg) 1)) ?\/)
-            )
-           (t
-            (setq control (match-string-no-properties 1)
-                  type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-            (setq controls (append controls (list (cons type control)))))
-           )
-          )
-         ((rjsx-mode-block-starts-with "\\(else\\|elif\\)" reg-beg)
-          (setq controls (append controls (list (cons 'inside "if")))))
-         ((rjsx-mode-block-starts-with "end\\(if\\|for\\)" reg-beg)
-          (setq controls (append controls (list (cons 'close (match-string-no-properties 1))))))
-         ((and (rjsx-mode-block-starts-with "if\\|for" reg-beg)
-               (rjsx-mode-block-ends-with ":" reg-beg))
-          (setq controls (append controls (list (cons 'open (match-string-no-properties 0))))))
-         )
-        ) ;mako
-
-       ((string= rjsx-mode-engine "mason")
-        (cond
-         ((looking-at "</?%\\(after\\|around\\|augment\\|before\\|def\\|filter\\|method\\|override\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         ) ;mason
-        )
-
-       ((string= rjsx-mode-engine "ctemplate")
-        (cond
-         ((looking-at-p "{{else") ;#721
-          (let ((continue t)
-                (pos reg-beg)
-                (ctrl nil))
-            (while continue
-              (cond
-               ((null (setq pos (rjsx-mode-block-control-previous-position 'open pos)))
-                (setq continue nil))
-               ((member (setq ctrl (cdr (car (get-text-property pos 'block-controls)))) '("if" "each"))
-                (setq continue nil)
-                )
-               ) ;cond
-              ) ;while
-            (setq controls (append controls (list (cons 'inside (or ctrl "if")))))
-            )
-          ;;(setq controls (append controls (list (cons 'inside "if"))))
-          )
-
-         ((looking-at "{{[#^/][ ]*\\([[:alpha:]_.-]+\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 2) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         )
-        ) ;ctemplate
-
-       ((string= rjsx-mode-engine "blade")
-        (cond
-         ((not (eq (char-after) ?\@))
-          )
-         ((rjsx-mode-block-starts-with
-           "section\(\s*\\(['\"]\\).*\\1\s*,\s*\\(['\"]\\).*\\2\s*\)" reg-beg)
-          )
-         ((rjsx-mode-block-starts-with
-           "\\(?:end\\)?\\(foreach\\|forelse\\|for\\|if\\|section\\|unless\\|while\\)"
-           reg-beg)
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 0) ?e) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         ((rjsx-mode-block-starts-with "stop\\|show\\|overwrite" reg-beg)
-          (setq controls (append controls (list (cons 'close "section")))))
-         ((rjsx-mode-block-starts-with "else\\|elseif" reg-beg)
-          (setq controls (append controls (list (cons 'inside "if")))))
-         ((rjsx-mode-block-starts-with "empty" reg-beg)
-          (setq controls (append controls (list (cons 'inside "forelse")))))
-         )
-        ) ;blade
-
-       ((string= rjsx-mode-engine "closure")
-        (cond
-         ((eq (char-after (1- reg-end)) ?\/)
-          )
-         ((looking-at "alias\\|namespace")
-          )
-         ((rjsx-mode-block-starts-with "ifempty" reg-beg)
-          (setq controls (append controls (list (cons 'inside "foreach")))))
-         ((rjsx-mode-block-starts-with "else\\|elseif" reg-beg)
-          (setq controls (append controls (list (cons 'inside "if")))))
-         ((rjsx-mode-block-starts-with "case\\|default" reg-beg)
-          (setq controls (append controls (list (cons 'inside "switch")))))
-         ((looking-at
-           "{/?\\(call\\|deltemplate\\|for\\|foreach\\|if\\|let\\|literal\\|msg\\|param\\|switch\\|template\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         )
-        ) ;closure
-
-       ((string= rjsx-mode-engine "go")
-        (cond
-         ((rjsx-mode-block-starts-with "end\\_>" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-starts-with "else\\_>" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-starts-with "\\(range\\|with\\|if\\)\\_>" reg-beg)
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;go
-
-       ((string= rjsx-mode-engine "template-toolkit")
-        (cond
-         ((rjsx-mode-block-starts-with "end" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-starts-with "els\\|catch\\|final" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-starts-with "filter\\|foreach\\|if\\|last\\|next\\|perl\\|rawperl\\|try\\|unless\\|while" reg-beg)
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;template-toolkit
-
-       ((string= rjsx-mode-engine "cl-emb")
-        (cond
-         ((rjsx-mode-block-starts-with "@else" reg-beg)
-          (setq controls (append controls (list (cons 'inside "if")))))
-         ((rjsx-mode-block-starts-with "@\\(?:end\\)?\\(if\\|unless\\|repeat\\|loop\\|with\\|genloop\\)" reg-beg)
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?e) 'close 'open))
-          (setq controls (append controls (list (cons type control)))))
-         )
-        ) ;cl-emb
-
-       ((string= rjsx-mode-engine "elixir")
-        (cond
-         ((rjsx-mode-block-starts-with "end" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-starts-with "else" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-ends-with " do" reg-beg)
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;elixir
-
-       ((string= rjsx-mode-engine "velocity")
-        (cond
-         ((rjsx-mode-block-starts-with "{?end" reg-beg)
-          (setq controls (append controls (list (cons 'close "ctrl")))))
-         ((rjsx-mode-block-starts-with "{?els" reg-beg)
-          (setq controls (append controls (list (cons 'inside "ctrl")))))
-         ((rjsx-mode-block-starts-with "{?\\(define\\|if\\|for\\|foreach\\|macro\\)" reg-beg)
-          (setq controls (append controls (list (cons 'open "ctrl")))))
-         )
-        ) ;velocity
-
-       ((string= rjsx-mode-engine "freemarker")
-        (cond
-         ((looking-at "<#\\(import\\|assign\\|return\\|local\\)")
-          )
-         ((eq (char-after (1- reg-end)) ?\/)
-          )
-         ((looking-at "[<[]#\\(break\\|case\\|default\\)")
-          (setq controls (append controls (list (cons 'inside "switch"))))
-          )
-         ((looking-at "[<[]#els")
-          (setq controls (append controls (list (cons 'inside "if"))))
-          )
-         ((looking-at "</?\\([[:alpha:]]+\\(?:[:][[:alpha:]]+\\)?\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         ((looking-at "</?\\(@\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         ((looking-at "[<[]/?#\\([[:alpha:]]+\\(?:[:][[:alpha:]]+\\)?\\)")
-          (setq control (match-string-no-properties 1)
-                type (if (eq (aref (match-string-no-properties 0) 1) ?\/) 'close 'open))
-          (setq controls (append controls (list (cons type control))))
-          )
-         (t
-          (when (rjsx-mode-block-starts-with "}" reg-beg)
-            (setq controls (append controls (list (cons 'close "{")))))
-          (when (rjsx-mode-block-ends-with "{" reg-beg)
-            (setq controls (append controls (list (cons 'open "{")))))
-          )
-         )
-        ) ;freemarker
-
-       ((string= rjsx-mode-engine "razor")
-        (when (rjsx-mode-block-starts-with "}" reg-beg)
-          (setq controls (append controls (list (cons 'close "{")))))
-        (when (rjsx-mode-block-ends-with "{" reg-beg)
-          (setq controls (append controls (list (cons 'open "{")))))
-        ) ;razor
-
-       ((string= rjsx-mode-engine "lsp")
-        (when (rjsx-mode-block-starts-with ")" reg-beg)
-          (setq controls (append controls (list (cons 'close "(")))))
-        (when (rjsx-mode-block-is-opened-sexp reg-beg reg-end)
-          (setq controls (append controls (list (cons 'open "(")))))
-        ) ;lsp
-
        ) ;cond engine
 
       (put-text-property reg-beg (1+ reg-beg) 'block-controls controls)
@@ -4014,17 +1762,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
          )
 
         (cond
-         ((string= tname "style")
-          (let (style)
-            (setq element-content-type "css"
-                  style (buffer-substring-no-properties tbeg tend)
-                  part-close-tag "</style>")
-            (cond
-             ((string-match-p " lang[ ]*=[ ]*[\"']stylus" style)
-              (setq element-content-type "stylus"))
-             ) ;cond
-            ) ;let
-          ) ;style
          ((string= tname "script")
           (let (script)
             (setq script (buffer-substring-no-properties tbeg tend)
@@ -4032,8 +1769,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             (cond
              ((string-match-p " type[ ]*=[ ]*[\"']text/\\(jsx\\|babel\\)" script)
               (setq element-content-type "jsx"))
-             ((string-match-p " type[ ]*=[ ]*[\"']text/\\(markdown\\|template\\)" script)
-              (setq element-content-type "markdown"))
              ((string-match-p " type[ ]*=[ ]*[\"']text/\\(x-handlebars\\|x-jquery-tmpl\\|x-jsrender\\|html\\|ng-template\\|template\\|mustache\\|x-dust-template\\)" script)
               (setq element-content-type "html"
                     part-close-tag nil))
@@ -4044,10 +1779,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
              ) ;cond
             ) ;let
           ) ;script
-         ((and (string= rjsx-mode-engine "archibus")
-               (string= tname "sql"))
-          (setq element-content-type "sql"
-                part-close-tag "</sql>"))
          )
 
         (add-text-properties tbeg tend props)
@@ -4282,12 +2013,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
              ((member attr '("http-equiv"))
               (setq attr-flags (1- attr-flags))
               )
-             ((and rjsx-mode-engine-attr-regexp
-                   (string-match-p rjsx-mode-engine-attr-regexp attr))
-              ;;(message "%S: %S" pos rjsx-mode-engine-attr-regexp)
-              (setq attr-flags (logior attr-flags 2))
-              ;;(setq attr-flags (1- attr-flags))
-              )
              ((and (eq char ?\-) (not (string= attr "http-")))
               (setq attr-flags (logior attr-flags 1)))
              ) ;cond
@@ -4368,10 +2093,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (setq token-re "/\\|\"\\|'\\|`"))
        ((member content-type '("jsx"))
         (setq token-re "/\\|\"\\|'\\|`\\|</?[[:alpha:]]"))
-       ((string= rjsx-mode-content-type "css")
-        (setq token-re "\"\\|'\\|/\\*\\|//"))
-       ((string= content-type "css")
-        (setq token-re "\"\\|'\\|/\\*"))
        (t
         (setq token-re "/\\*\\|\"\\|'"))
        )
@@ -4957,129 +2678,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
       ) ;while
     ))
 
-;; css rule = selector(s) + declaration (properties)
-(defun rjsx-mode-css-rule-next (limit)
-  (let (at-rule var-rule sel-beg sel-end dec-beg dec-end chunk)
-    (skip-chars-forward "\n\t ")
-    (setq sel-beg (point))
-    (when (and (< (point) limit)
-               (rjsx-mode-part-rsf "[{;]" limit))
-      (setq sel-end (1- (point)))
-      (cond
-       ((eq (char-before) ?\{)
-        (setq dec-beg (point))
-        (setq dec-end (rjsx-mode-closing-paren-position (1- dec-beg) limit))
-        (if dec-end
-            (progn
-              (goto-char dec-end)
-              (forward-char))
-          (setq dec-end limit)
-          (goto-char limit))
-        )
-       (t
-        )
-       ) ;cond
-      (setq chunk (buffer-substring-no-properties sel-beg sel-end))
-      (cond
-       ((string-match "@\\([[:alpha:]-]+\\)" chunk)
-        (setq at-rule (match-string-no-properties 1 chunk)))
-       ((string-match "\\$\\([[:alpha:]-]+\\)" chunk)
-        (setq var-rule (match-string-no-properties 1 chunk)))
-       ) ;cond
-      ) ;when
-    (if (not sel-end)
-        (progn (goto-char limit) nil)
-      (list :at-rule at-rule
-            :var-rule var-rule
-            :sel-beg sel-beg
-            :sel-end sel-end
-            :dec-beg dec-beg
-            :dec-end dec-end)
-      ) ;if
-    ))
-
-(defun rjsx-mode-css-rule-current (&optional pos part-beg part-end)
-  "Current CSS rule boundaries."
-  (unless pos (setq pos (point)))
-  (unless part-beg (setq part-beg (rjsx-mode-part-beginning-position pos)))
-  (unless part-end (setq part-end (rjsx-mode-part-end-position pos)))
-  (save-excursion
-    (let (beg end)
-      (goto-char pos)
-      (if (not (rjsx-mode-part-sb "{" part-beg))
-          (progn
-            (setq beg part-beg)
-            (if (rjsx-mode-part-sf ";" part-end)
-                (setq end (1+ (point)))
-              (setq end part-end))
-            ) ;progn
-        (setq beg (point))
-        (setq end (rjsx-mode-closing-paren-position beg part-end))
-        (if end
-            (setq end (1+ end))
-          (setq end (line-end-position)))
-;;        (message "%S >>beg%S >>end%S" pos beg end)
-        (if (> pos end)
-
-            ;;selectors
-            (progn
-              (goto-char pos)
-              (if (rjsx-mode-part-rsb "[};]" part-beg)
-                  (setq beg (1+ (point)))
-                (setq beg part-beg)
-                ) ;if
-              (goto-char pos)
-              (if (rjsx-mode-part-rsf "[{;]" part-end)
-                  (cond
-                   ((eq (char-before) ?\;)
-                    (setq end (point))
-                    )
-                   (t
-                    (setq end (rjsx-mode-closing-paren-position (1- (point)) part-end))
-                    (if end
-                        (setq end (1+ end))
-                      (setq end part-end))
-                    )
-                   ) ;cond
-                (setq end part-end)
-                )
-              ) ;progn selectors
-
-          ;; declaration
-          (goto-char beg)
-          (if (rjsx-mode-part-rsb "[}{;]" part-beg)
-              (setq beg (1+ (point)))
-            (setq beg part-beg)
-            ) ;if
-          ) ;if > pos end
-        )
-;;      (message "beg(%S) end(%S)" beg end)
-      (when (eq (char-after beg) ?\n)
-        (setq beg (1+ beg)))
-      (cons beg end)
-      )))
-
-(defun rjsx-mode-scan-engine-comments (reg-beg reg-end tag-start tag-end)
-  "Scan engine comments (mako, django)."
-  (save-excursion
-    (let (beg end (continue t))
-      (goto-char reg-beg)
-      (while (and continue
-                  (< (point) reg-end)
-                  (re-search-forward tag-start reg-end t))
-        (goto-char (match-beginning 0))
-        (setq beg (point))
-        (if (not (re-search-forward tag-end reg-end t))
-            (setq continue nil)
-          (setq end (point))
-          (remove-list-of-text-properties beg end rjsx-mode-scan-properties)
-          (add-text-properties beg end '(block-side t block-token comment))
-          (put-text-property beg (1+ beg) 'block-beg 0)
-          (put-text-property (1- end) end 'block-end t)
-          ) ;if
-        ) ;while
-      )))
-
 (defun rjsx-mode-propertize (&optional beg end)
 
   (unless beg (setq beg rjsx-mode-change-beg))
@@ -5099,16 +2697,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
    ((or (null beg) (null end))
     nil)
 
-   ((and (member rjsx-mode-engine '("php" "asp"))
-         (get-text-property beg 'block-side)
-         (get-text-property end 'block-side)
-         (> beg (point-min))
-         (not (eq (get-text-property (1- beg) 'block-token) 'delimiter-beg))
-         (not (eq (get-text-property end 'block-token) 'delimiter-end)))
-    ;;(message "invalidate block")
-    (rjsx-mode-invalidate-block-region beg end))
-
-   ((and (or (member rjsx-mode-content-type '("css" "jsx" "javascript"))
+   ((and (or (member rjsx-mode-content-type '("jsx" "javascript"))
              (and (get-text-property beg 'part-side)
                   (get-text-property end 'part-side)
                   (> beg (point-min))
@@ -5141,29 +2730,8 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                   (<= pos-end code-end)
                   (> code-end code-beg)))
         (rjsx-mode-invalidate-region pos-beg pos-end))
-       ((member rjsx-mode-engine '("asp"))
-        (goto-char pos-beg)
-        (forward-line -1)
-        (setq beg (line-beginning-position))
-        (when (> code-beg beg)
-          (setq beg code-beg))
-        (goto-char pos-beg)
-        (forward-line)
-        (setq end (line-end-position))
-        (when (< code-end end)
-          (setq end code-end))
-        ;; ?? pas de (rjsx-mode-block-tokenize beg end) ?
-        (cons beg end)
-        ) ;asp
        (t
         (goto-char pos-beg)
-        (when (string= rjsx-mode-engine "php")
-          (cond
-           ((and (looking-back "\*" (point-min))
-                 (looking-at-p "/"))
-            (search-backward "/*" code-beg))
-           ) ;cond
-          )
         (if (rjsx-mode-block-rsb "[;{}(][ ]*\n" code-beg)
             (setq beg (match-end 0))
           (setq beg code-beg))
@@ -5203,16 +2771,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (if (rjsx-mode-javascript-rsf "[;{})][ ]*\n" part-end)
             (setq end (match-end 0))
           (setq end part-end))
-        (rjsx-mode-scan-region beg end language))
-       ((string= language "css")
-        (let (rule1 rule2)
-          (setq rule1 (rjsx-mode-css-rule-current pos-beg))
-          (setq rule2 rule1)
-          (when (> pos-end (cdr rule1))
-            (setq rule2 (rjsx-mode-css-rule-current pos-end)))
-          (setq beg (car rule1)
-                end (cdr rule2))
-          )
         (rjsx-mode-scan-region beg end language))
        (t
         (setq beg part-beg
@@ -5260,16 +2818,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
   (save-excursion
     (goto-char pos)
     ;;(message "pos=%S %S" pos (get-text-property pos 'block-token))
-    (when (string= rjsx-mode-engine "jsp")
-      (cond
-       ((and (looking-back "<%" (point-min))
-             (looking-at-p "--"))
-        (search-forward "--%>"))
-       ((and (looking-back "-- %" (point-min))
-             (looking-at-p ">"))
-        (search-forward "--%>"))
-       ) ;cond
-      ) ;when
 
     (setq pos (point-max))
     (let ((continue (not (eobp))))
@@ -5556,89 +3104,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
      (rjsx-mode-engine-font-lock-keywords
       (setq keywords rjsx-mode-engine-font-lock-keywords)
       )
-
-     ((string= rjsx-mode-engine "django")
-      (cond
-       ((string= sub2 "{{")
-        (setq keywords rjsx-mode-django-expr-font-lock-keywords))
-       ((string= sub2 "{%")
-        (setq keywords rjsx-mode-django-code-font-lock-keywords))
-       )) ;django
-
-     ((string= rjsx-mode-engine "mako")
-      (cond
-       ((member sub3 '("<% " "<%\n" "<%!"))
-        (setq keywords rjsx-mode-mako-block-font-lock-keywords))
-       ((eq (aref sub2 0) ?\%)
-        (setq keywords rjsx-mode-mako-block-font-lock-keywords))
-       ((member sub2 '("<%" "</"))
-        (setq keywords rjsx-mode-mako-tag-font-lock-keywords))
-       ((member sub2 '("${"))
-        (setq keywords rjsx-mode-uel-font-lock-keywords))
-       )) ;mako
-
-     ((string= rjsx-mode-engine "mason")
-      ;;(message "%S %S" sub2 sub3)
-      (cond
-       ((member sub3 '("<% " "<%\n" "<&|"))
-        (setq keywords rjsx-mode-mason-code-font-lock-keywords))
-       ((eq (aref sub2 0) ?\%)
-        (setq keywords rjsx-mode-mason-code-font-lock-keywords))
-       ((and (or (string= sub2 "<%") (string= sub3 "</%"))
-             (not (member sub3 '("<%c" "<%i" "<%p"))))
-        (setq keywords rjsx-mode-mason-block-font-lock-keywords))
-       (t
-        (setq keywords rjsx-mode-mason-code-font-lock-keywords))
-       )) ;mason
-
-     ((string= rjsx-mode-engine "jsp")
-      (cond
-       ((string= sub3 "<%@")
-        (setq keywords rjsx-mode-directive-font-lock-keywords))
-       ((member sub2 '("${" "#{"))
-        (setq keywords rjsx-mode-uel-font-lock-keywords))
-       ((string= sub2 "<%")
-        (setq keywords rjsx-mode-jsp-font-lock-keywords))
-       ;;(t
-       ;; (setq keywords rjsx-mode-engine-tag-font-lock-keywords))
-       )) ;jsp
-
-     ((string= rjsx-mode-engine "asp")
-      (cond
-       ((or (string= sub2 "<%")
-            (not (string= sub1 "<")))
-        (setq keywords rjsx-mode-asp-font-lock-keywords))
-       (t
-        (setq keywords rjsx-mode-engine-tag-font-lock-keywords))
-       )) ;asp
-
-     ((string= rjsx-mode-engine "clip")
-      (setq keywords rjsx-mode-engine-tag-font-lock-keywords)
-      ) ;clip
-
-     ((string= rjsx-mode-engine "aspx")
-      (cond
-       ((string= sub3 "<%@")
-        (setq keywords rjsx-mode-directive-font-lock-keywords))
-       ((string= sub3 "<%$")
-        (setq keywords rjsx-mode-expression-font-lock-keywords))
-       (t
-        (setq keywords rjsx-mode-aspx-font-lock-keywords))
-       )) ;aspx
-
-     ((string= rjsx-mode-engine "freemarker")
-      (cond
-       ((member sub2 '("${" "#{"))
-        (setq keywords rjsx-mode-uel-font-lock-keywords))
-       ((or (member sub2 '("<@" "[@" "<#" "[#"))
-            (member sub3 '("</@" "[/@" "</#" "[/#")))
-        (setq keywords (if (eq ?\[ (aref sub2 0))
-                           rjsx-mode-freemarker-square-font-lock-keywords
-                         rjsx-mode-freemarker-font-lock-keywords)))
-       (t
-        (setq keywords rjsx-mode-engine-tag-font-lock-keywords))
-       )) ;freemarker
-
      ) ;cond
 
     (when keywords
@@ -5690,35 +3155,14 @@ another auto-completion with different ac-sources (e.g. ac-php)")
               (rjsx-mode-fontify-region beg end keywords)
             ))
 ;;          (message "%S %c %S beg=%S end=%S" rjsx-mode-enable-string-interpolation char rjsx-mode-engine beg end)
-          (when (and rjsx-mode-enable-string-interpolation
-                     (member char '(?\" ?\<))
-                     (member rjsx-mode-engine '("php" "erb"))
-                     (> (- end beg) 4))
-            (rjsx-mode-interpolate-block-string beg end)
-            ) ;when
           (when (and rjsx-mode-enable-comment-interpolation
                      (eq token-type 'comment)
                      (> (- end beg) 3))
             (rjsx-mode-interpolate-comment beg end t)
             ) ;when
-          (when (and rjsx-mode-enable-sql-detection
-                     (eq token-type 'string)
-                     (> (- end beg) 6)
-                     ;;(eq char ?\<)
-                     ;;(rjsx-mode-looking-at-p (concat "[ \n]*" rjsx-mode-sql-queries) (1+ beg))
-                     (rjsx-mode-looking-at-p (concat "\\(.\\|<<<[[:alnum:]]+\\)[ \n]*" rjsx-mode-sql-queries) beg)
-                     )
-            (rjsx-mode-interpolate-sql-string beg end)
-            ) ;when
           ) ;when beg end
         ) ;while continue
       ) ;when keywords
-
-    ;;(when (and (member rjsx-mode-engine '("jsp" "mako"))
-    (when (and (member rjsx-mode-engine '("mako"))
-               (> (- reg-end reg-beg) 12)
-               (eq ?\< (char-after reg-beg)))
-      (rjsx-mode-interpolate-block-tag reg-beg reg-end))
 
     (when rjsx-mode-enable-block-face
 ;;      (message "block-face %S %S" reg-beg reg-end)
@@ -5748,16 +3192,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (setq string-face 'rjsx-mode-json-string-face
               comment-face 'rjsx-mode-json-comment-face)
         (rjsx-mode-fontify-region reg-beg reg-end rjsx-mode-javascript-font-lock-keywords))
-       ((string= content-type "css")
-        (setq string-face 'rjsx-mode-css-string-face
-              comment-face 'rjsx-mode-css-comment-face)
-        (rjsx-mode-css-rules-highlight reg-beg reg-end))
-       ((string= content-type "sql")
-        (rjsx-mode-fontify-region reg-beg reg-end rjsx-mode-sql-font-lock-keywords))
-       ((string= content-type "stylus")
-        (rjsx-mode-fontify-region reg-beg reg-end rjsx-mode-stylus-font-lock-keywords))
-       ((string= content-type "markdown")
-        (rjsx-mode-fontify-region reg-beg reg-end rjsx-mode-markdown-font-lock-keywords))
        ) ;cond
 
       (goto-char reg-beg)
@@ -5816,18 +3250,8 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                                         (cond
                                          ((string= content-type "javascript")
                                           'rjsx-mode-script-face)
-                                         ((string= content-type "css")
-                                          'rjsx-mode-style-face)
                                          (t
                                           'rjsx-mode-part-face)))
-        )
-
-      (when (and rjsx-mode-enable-css-colorization (string= content-type "stylus"))
-        (goto-char reg-beg)
-        (while (and (re-search-forward "#[0-9a-fA-F]\\{6\\}\\|#[0-9a-fA-F]\\{3\\}\\|rgba?([ ]*\\([[:digit:]]\\{1,3\\}\\)[ ]*,[ ]*\\([[:digit:]]\\{1,3\\}\\)[ ]*,[ ]*\\([[:digit:]]\\{1,3\\}\\)\\(.*?\\))" end t)
-                    (<= (point) reg-end))
-          (rjsx-mode-colorize (match-beginning 0) (match-end 0))
-          )
         )
 
       (when (and (eq depth 0) (string= content-type "jsx"))
@@ -5891,67 +3315,13 @@ another auto-completion with different ac-sources (e.g. ac-php)")
     ) ;save-excursion
   )
 
-(defun rjsx-mode-css-rules-highlight (part-beg part-end)
-  (save-excursion
-    (goto-char part-beg)
-    (let (rule (continue t) (i 0) (at-rule nil) (var-rule nil))
-      (while continue
-        (setq rule (rjsx-mode-css-rule-next part-end))
-        ;;(message "rule=%S" rule)
-        (cond
-         ((> (setq i (1+ i)) 1000)
-          (message "css-rules-highlight ** too much rules **")
-          (setq continue nil))
-         ((null rule)
-          (setq continue nil))
-         ((and (setq at-rule (plist-get rule :at-rule))
-               (not (member at-rule '("charset" "font-face" "import")))
-               (plist-get rule :dec-end))
-          (rjsx-mode-css-rule-highlight (plist-get rule :sel-beg)
-                                       (plist-get rule :sel-end)
-                                       nil nil)
-          (rjsx-mode-css-rules-highlight (plist-get rule :dec-beg)
-                                        (plist-get rule :dec-end)))
-         (t
-          (rjsx-mode-css-rule-highlight (plist-get rule :sel-beg)
-                                       (plist-get rule :sel-end)
-                                       (plist-get rule :dec-beg)
-                                       (plist-get rule :dec-end)))
-         ) ;cond
-        ) ;while
-      ) ;let
-    ))
-
-(defun rjsx-mode-css-rule-highlight (sel-beg sel-end dec-beg dec-end)
-  (save-excursion
-    (let ((end sel-end))
-      ;;(message "sel-beg=%S sel-end=%S dec-beg=%S dec-end=%S" sel-beg sel-end dec-beg dec-end)
-      (rjsx-mode-fontify-region sel-beg sel-end
-                               rjsx-mode-selector-font-lock-keywords)
-      (when (and dec-beg dec-end)
-        (setq end dec-end)
-        (rjsx-mode-fontify-region dec-beg dec-end
-                                 rjsx-mode-declaration-font-lock-keywords)
-        ) ;when
-      (goto-char sel-beg)
-      (while (and rjsx-mode-enable-css-colorization
-                  (re-search-forward "#[0-9a-fA-F]\\{6\\}\\|#[0-9a-fA-F]\\{3\\}\\|rgba?([ ]*\\([[:digit:]]\\{1,3\\}\\)[ ]*,[ ]*\\([[:digit:]]\\{1,3\\}\\)[ ]*,[ ]*\\([[:digit:]]\\{1,3\\}\\)\\(.*?\\))" end t)
-                  ;;(progn (message "%S %S" end (point)) t)
-                  (<= (point) end))
-        (rjsx-mode-colorize (match-beginning 0) (match-end 0))
-        ) ;while
-      ) ;let
-    ))
-
-
-
 (defun rjsx-mode-fontify-region (beg end keywords)
 ;;  (message "beg=%S end=%S" beg end);; (symbol-name keywords))
   (save-excursion
     (let ((font-lock-keywords keywords)
           (font-lock-multiline nil)
           (font-lock-keywords-case-fold-search
-           (member rjsx-mode-engine '("archibus" "asp" "template-toolkit")))
+           nil)
           (font-lock-keywords-only t)
           (font-lock-extend-region-functions nil))
       ;;      (message "%S" keywords)
@@ -6015,21 +3385,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
   (save-excursion
     (goto-char (1+ beg))
     (setq end (1- end))
-    (cond
-     ((string= rjsx-mode-engine "php")
-      (while (re-search-forward "$[[:alnum:]_]+\\(->[[:alnum:]_]+\\)*\\|{[ ]*$.+?}" end t)
-;;        (message "%S > %S" (match-beginning 0) (match-end 0))
-        (remove-list-of-text-properties (match-beginning 0) (match-end 0) '(font-lock-face))
-        (rjsx-mode-fontify-region (match-beginning 0) (match-end 0)
-                                 rjsx-mode-php-var-interpolation-font-lock-keywords)
-        ))
-     ((string= rjsx-mode-engine "erb")
-      (while (re-search-forward "#{.*?}" end t)
-        (remove-list-of-text-properties (match-beginning 0) (match-end 0) '(font-lock-face))
-        (put-text-property (match-beginning 0) (match-end 0)
-                           'font-lock-face 'rjsx-mode-variable-name-face)
-        ))
-     ) ;cond
     ))
 
 (defun rjsx-mode-interpolate-comment (beg end block-side)
@@ -6040,18 +3395,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (font-lock-prepend-text-property (match-beginning 1) (match-end 1)
                                          'font-lock-face
                                          'rjsx-mode-comment-keyword-face)
-        ) ;while
-      )))
-
-(defun rjsx-mode-interpolate-sql-string (beg end)
-  (save-excursion
-    (let ((case-fold-search t)
-          (regexp (concat "\\_<\\(" rjsx-mode-sql-keywords "\\)\\_>")))
-      (goto-char beg)
-      (while (re-search-forward regexp end t)
-        (font-lock-prepend-text-property (match-beginning 1) (match-end 1)
-                                         'font-lock-face
-                                         'rjsx-mode-sql-keyword-face)
         ) ;while
       )))
 
@@ -6136,81 +3479,14 @@ another auto-completion with different ac-sources (e.g. ac-php)")
 
 (defun rjsx-mode-engine-syntax-check ()
   (interactive)
-  (let ((proc nil)
-        (errors nil)
-        (file (concat temporary-file-directory "emacs-rjsx-mode-tmp")))
-    (write-region (point-min) (point-max) file)
-    (cond
-     ;;       ((null (buffer-file-name))
-     ;;        )
-     ((string= rjsx-mode-engine "php")
-      (setq proc (start-process "php-proc" nil "php" "-l" file))
-      (set-process-filter proc
-                          (lambda (proc output)
-                            (cond
-                             ((string-match-p "No syntax errors" output)
-                              (message "No syntax errors")
-                              )
-                             (t
-;;                              (setq output (replace-regexp-in-string temporary-file-directory "" output))
-;;                              (message output)
-                              (message "Syntax error")
-                              (setq errors t))
-                             ) ;cond
-;;                            (delete-file file)
-                            ) ;lambda
-                          )
-      ) ;php
-     (t
-      (message "no syntax checker found")
-      ) ;t
-     ) ;cond
-    errors))
+  nil
+  ;; TODO(colin): remove
+    )
 
 (defun rjsx-mode-jshint ()
-  "Run JSHint on all the JavaScript parts."
-  (interactive)
-  (let (proc lines)
-    (when (buffer-file-name)
-      (setq proc (start-process
-                  "jshint-proc"
-                  nil
-                  (or (executable-find "jshint") "/usr/local/bin/jshint")
-                  "--extract=auto"
-                  (buffer-file-name)))
-      (setq rjsx-mode-jshint-errors 0)
-      (set-process-filter proc
-                          (lambda (proc output)
-                            (let ((offset 0) overlay pos (old 0) msg)
-                              (remove-overlays (point-min) (point-max) 'font-lock-face 'rjsx-mode-error-face)
-                              (while (string-match
-                                      "line \\([[:digit:]]+\\), col \\([[:digit:]]+\\), \\(.+\\)\\.$"
-                                      output offset)
-                                (setq rjsx-mode-jshint-errors (1+ rjsx-mode-jshint-errors))
-                                (setq offset (match-end 0))
-                                (setq pos (rjsx-mode-coord-position
-                                           (match-string-no-properties 1 output)
-                                           (match-string-no-properties 2 output)))
-                                (when (get-text-property pos 'tag-beg)
-                                  (setq pos (1- pos)))
-                                (when (not (= pos old))
-                                  (setq old pos)
-                                  (setq overlay (make-overlay pos (1+ pos)))
-                                  (overlay-put overlay 'font-lock-face 'rjsx-mode-error-face)
-                                  )
-                                (setq msg (or (overlay-get overlay 'help-echo)
-                                               (concat "line="
-                                                       (match-string-no-properties 1 output)
-                                                       " column="
-                                                       (match-string-no-properties 2 output)
-                                                       )))
-                                (overlay-put overlay 'help-echo
-                                             (concat msg " ## " (match-string-no-properties 3 output)))
-                                ) ;while
-                              ))
-                          )
-      ) ;when
-    ))
+  nil
+  ;; TODO(colin): remove
+    )
 
 (defun rjsx-mode-dom-errors-show ()
   "Show unclosed tags."
@@ -6517,9 +3793,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
     ;;    (message "offset(%S)" offset)
     (setq rjsx-mode-attr-indent-offset offset)
     (setq rjsx-mode-code-indent-offset offset)
-    (setq rjsx-mode-css-indent-offset offset)
     (setq rjsx-mode-markup-indent-offset offset)
-    (setq rjsx-mode-sql-indent-offset offset)
     (add-to-list 'rjsx-mode-indentation-params '("lineup-args" . nil))
     (add-to-list 'rjsx-mode-indentation-params '("lineup-calls" . nil))
     (add-to-list 'rjsx-mode-indentation-params '("lineup-concats" . nil))
@@ -6573,28 +3847,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         ) ;while
       )))
 
-;; todo : passer de règle en règle et mettre un \n à la fin
-(defun rjsx-mode-css-indent ()
-  (save-excursion
-    (goto-char (point-min))
-    (let ((continue t) rule part-end)
-      (while continue
-        (cond
-         ((not (rjsx-mode-part-next))
-          (setq continue nil))
-         ((eq (get-text-property (point) 'part-side) 'css)
-          (setq part-end (rjsx-mode-part-end-position))
-          (while (setq rule (rjsx-mode-css-rule-next part-end))
-            (when (not (looking-at-p "[[:space:]]*\\($\\|<\\)"))
-              (newline)
-              (indent-according-to-mode)
-              (setq part-end (rjsx-mode-part-end-position)))
-            )
-          )
-         ) ;cond
-        )
-      )))
-
 ;; tag-case=lower|upper-case , attr-case=lower|upper-case
 ;; special-chars=unicode|html-entities
 ;; smart-apostrophes=bool , smart-quotes=bool , indentation=bool
@@ -6607,8 +3859,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (rjsx-mode-buffer-change-tag-case elt))
       (when (setq elt (cdr (assoc "attr-case" rules)))
         (rjsx-mode-buffer-change-attr-case elt))
-      (when (setq elt (cdr (assoc "css-indentation" rules)))
-        (rjsx-mode-css-indent))
       (when (setq elt (cdr (assoc "smart-apostrophes" rules)))
         (rjsx-mode-dom-apostrophes-replace))
       (when (setq elt (cdr (assoc "smart-quotes" rules)))
@@ -6659,10 +3909,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
        ((and (bobp) (member rjsx-mode-content-type '("html" "xml")))
         (setq language rjsx-mode-content-type)
         )
-
-       ((string= rjsx-mode-content-type "css")
-        (setq language "css"
-              curr-indentation rjsx-mode-css-indent-offset))
 
        ((member rjsx-mode-content-type '("javascript" "json"))
         (setq language "javascript"
@@ -6723,10 +3969,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         ;;(message "jsx reg-beg=%S" reg-beg)
         ) ;jsx
 
-       ((string= rjsx-mode-content-type "php")
-        (setq language "php"
-              curr-indentation rjsx-mode-code-indent-offset))
-
        ((or (string= rjsx-mode-content-type "xml"))
         (setq language "xml"
               curr-indentation rjsx-mode-markup-indent-offset))
@@ -6747,69 +3989,15 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (setq reg-col (current-column))
         (setq language rjsx-mode-engine)
         (setq curr-indentation rjsx-mode-code-indent-offset)
-
-        (cond
-         ((string= rjsx-mode-engine "blade")
-          (save-excursion
-            (when (rjsx-mode-rsf "{[{!]+[ ]*")
-              (setq reg-col (current-column))))
-          (setq reg-beg (+ reg-beg 2))
-          )
-         ((string= rjsx-mode-engine "razor")
-          (setq reg-beg (+ reg-beg 2))
-          )
-         ;; tests/demo.chtml
-         ((string= rjsx-mode-engine "ctemplate")
-          (save-excursion
-            (when (rjsx-mode-rsf "{{#?")
-              (setq reg-col (current-column))))
-          )
-         ((string= rjsx-mode-engine "dust")
-          (save-excursion
-            (when (rjsx-mode-rsf "{@")
-              (setq reg-col (current-column))))
-          )
-         ((string= rjsx-mode-engine "template-toolkit")
-          (setq reg-beg (+ reg-beg 3)
-                reg-col (+ reg-col 3))
-          )
-         ((and (string= rjsx-mode-engine "jsp")
-               ;;(rjsx-mode-looking-at "<%@\\|<[[:alpha:]]" reg-beg))
-               (rjsx-mode-looking-at "<%@" reg-beg))
-          (save-excursion
-            (goto-char reg-beg)
-            (looking-at "<%@[ ]*[[:alpha:]]+[ ]+\\|</?[[:alpha:]]+[:.][[:alpha:]]+[ ]+")
-            (goto-char (match-end 0))
-            (setq reg-col (current-column))
-            )
-          )
-         ((and (string= rjsx-mode-engine "freemarker")
-               (rjsx-mode-looking-at "<@\\|<%@\\|<[[:alpha:]]" reg-beg))
-          (save-excursion
-            (goto-char reg-beg)
-            (looking-at "<@[[:alpha:].]+[ ]+\\|<%@[ ]*[[:alpha:]]+[ ]+\\|<[[:alpha:]]+:[[:alpha:]]+[ ]+")
-            (goto-char (match-end 0))
-            (setq reg-col (current-column))
-            )
-          )
-         ) ;cond
         ) ;block-side
 
-       ((and part-language (member part-language '("css" "javascript" "sql" "markdown" "stylus")))
+       ((and part-language (member part-language '("javascript")))
         (setq reg-beg (or (rjsx-mode-part-beginning-position pos) (point-min)))
         (goto-char reg-beg)
         (search-backward "<" nil t)
         (setq reg-col (current-column))
         (setq language part-language)
         (cond
-         ((string= language "css")
-          (setq curr-indentation rjsx-mode-css-indent-offset))
-         ((string= language "sql")
-          (setq curr-indentation rjsx-mode-sql-indent-offset))
-         ((string= language "markdown")
-          (setq curr-indentation rjsx-mode-code-indent-offset))
-         ((string= language "stylus")
-          (setq curr-indentation rjsx-mode-code-indent-offset))
          (t
           (setq language "javascript"
                 curr-indentation rjsx-mode-code-indent-offset))
@@ -6861,7 +4049,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                         (line-end-position))))
       (setq curr-char (if (string= curr-line "") 0 (aref curr-line 0)))
 
-      (when (or (member language '("php" "blade" "javascript" "jsx" "razor"))
+      (when (or (member language '("javascript" "jsx"))
                 (and (member language '("html" "xml"))
                      (not (eq ?\< curr-char))))
         (let (prev)
@@ -6890,9 +4078,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         )
        ((member language '("javascript" "jsx"))
         (setq reg-col (if rjsx-mode-script-padding (+ reg-col rjsx-mode-script-padding) 0)))
-       ((member language '("css" "sql" "markdown" "stylus"))
-        (setq reg-col (if rjsx-mode-style-padding (+ reg-col rjsx-mode-style-padding) 0)))
-       ((not (member language '("html" "xml" "razor")))
+       ((not (member language '("html" "xml")))
         (setq reg-col (if rjsx-mode-block-padding (+ reg-col rjsx-mode-block-padding) 0)))
        )
 
@@ -6953,21 +4139,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
          ((string= token "string")
           (when debug (message "I02 : string"))
           (cond
-           ((and rjsx-mode-enable-sql-detection
-                 (rjsx-mode-block-token-starts-with (concat "[ \n]*" rjsx-mode-sql-queries)))
-            (save-excursion
-              (let (col)
-                (rjsx-mode-block-string-beginning)
-                (skip-chars-forward "[ \"'\n]")
-                (setq col (current-column))
-                (goto-char pos)
-                (if (looking-at-p "\\(SELECT\\|INSERT\\|DELETE\\|UPDATE\\|FROM\\|LEFT\\|JOIN\\|WHERE\\|GROUP BY\\|LIMIT\\|HAVING\\|\)\\)")
-                    (setq offset col)
-                  (setq offset (+ col rjsx-mode-sql-indent-offset)))
-                )
-              ) ;save-excursion
-            )
-           ((and (member language '("javascript" "jsx" "ejs"))
+           ((and (member language '("javascript" "jsx"))
                  (rjsx-mode-is-relayql-string pos))
             (setq offset (rjsx-mode-relayql-indentation pos))
             )
@@ -6988,8 +4160,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
                          pos))))
           (setq offset (current-column))
           (cond
-           ((string= rjsx-mode-engine "freemarker")
-            (setq offset (+ (current-indentation) 2)))
            ((member (buffer-substring-no-properties (point) (+ (point) 2)) '("/*" "{*" "@*"))
             (cond
              ((eq ?\* curr-char)
@@ -7010,19 +4180,8 @@ another auto-completion with different ac-sources (e.g. ac-php)")
               (setq offset (+ offset 5)))
              ) ;cond
             )
-           ((and (string= rjsx-mode-engine "django") (looking-back "{% comment %}" (point-min)))
-            (setq offset (- offset 12)))
-           ((and (string= rjsx-mode-engine "mako") (looking-back "<%doc%>" (point-min)))
-            (setq offset (- offset 6)))
-           ((and (string= rjsx-mode-engine "mason") (looking-back "<%doc%>" (point-min)))
-            (setq offset (- offset 6)))
            ) ;cond
           ) ;case comment
-
-         ((and (string= rjsx-mode-engine "mason")
-               (string-match-p "^%" curr-line))
-          (when debug (message "I04"))
-          (setq offset 0))
 
          ((and (get-text-property pos 'block-beg)
                (or (rjsx-mode-block-is-close pos)
@@ -7118,31 +4277,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             )
            )
           )
-
-         ((string= language "ctemplate")
-          (when debug (message "I11"))
-          (setq offset reg-col))
-
-         ((member language '("mako" "web2py"))
-          (when debug (message "I12"))
-          (setq offset (rjsx-mode-python-indentation pos
-                                                    curr-line
-                                                    reg-col
-                                                    curr-indentation
-                                                    reg-beg)))
-
-         ((string= language "asp")
-          (when debug (message "I13"))
-          (setq offset (rjsx-mode-asp-indentation pos
-                                                 curr-line
-                                                 reg-col
-                                                 curr-indentation
-                                                 reg-beg)))
-
-         ((member language '("lsp" "cl-emb"))
-          (when debug (message "I14"))
-          (setq offset (rjsx-mode-lisp-indentation pos ctx)))
-
          ((member curr-char '(?\} ?\) ?\]))
           (when debug (message "I15"))
           (let (ori)
@@ -7170,60 +4304,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             ) ;let
           )
 
-         ((string= language "erb")
-          (when debug (message "I16"))
-          (setq offset (rjsx-mode-ruby-indentation pos
-                                                  curr-line
-                                                  reg-col
-                                                  curr-indentation
-                                                  reg-beg)))
-
-         ((string= language "css")
-          (when debug (message "I17"))
-          (setq offset (car (rjsx-mode-css-indentation pos
-                                                      reg-col
-                                                      curr-indentation
-                                                      language
-                                                      reg-beg))))
-
-         ((string= language "sql")
-          (when debug (message "I18"))
-          (setq offset (car (rjsx-mode-sql-indentation pos
-                                                      reg-col
-                                                      curr-indentation
-                                                      language
-                                                      reg-beg))))
-
-         ((string= language "markdown")
-          (when debug (message "I19"))
-          (setq offset (car (rjsx-mode-markdown-indentation pos
-                                                           reg-col
-                                                           curr-indentation
-                                                           language
-                                                           reg-beg))))
-
-         ((string= language "stylus")
-          (when debug (message "ISTYLUS"))
-          (setq offset (car (rjsx-mode-stylus-indentation pos
-                                                         reg-col
-                                                         curr-indentation
-                                                         language
-                                                         reg-beg))))
-
-         ((and (string= language "razor")
-               (string-match-p "^\\." curr-line)
-               (string-match-p "^\\." prev-line))
-          (when debug (message "I20"))
-          (setq offset prev-indentation))
-
-         ((and (string= language "razor")
-               (string-match-p "^case " curr-line)
-               (string-match-p "^case " prev-line))
-          (when debug (message "I21"))
-          (search-backward "case ")
-          (setq offset (current-column)))
-
-         ((and (member language '("javascript" "jsx" "ejs"))
+         ((and (member language '("javascript" "jsx"))
                (member ?\. chars)
                (not (string-match-p "^\\.\\.\\." curr-line)))
           (when debug (message "I22"))
@@ -7258,7 +4339,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             ) ;let
           )
 
-         ((and (member language '("javascript" "jsx" "ejs"))
+         ((and (member language '("javascript" "jsx"))
                (member ?\+ chars))
           (when debug (message "I23"))
           ;;(message "js-concat")
@@ -7280,7 +4361,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
           )
 
          ;; #579 , #742
-         ((and (member language '("javascript" "jsx" "ejs" "php"))
+         ((and (member language '("javascript" "jsx"))
                (string-match-p "=[>]?$" prev-line))
           (when debug (message "I24"))
           (setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
@@ -7288,19 +4369,17 @@ another auto-completion with different ac-sources (e.g. ac-php)")
           )
 
          ;; #446, #638, #800
-         ((and (member language '("javascript" "jsx" "ejs" "php"))
+         ((and (member language '("javascript" "jsx"))
                (or (string-match-p "[&|?:+-]$" prev-line)
                    (string-match-p "^[&|?:+-]" curr-line))
-               (not (and (string= language "php")
-                         (string-match-p "^->" curr-line)))
-               (not (and (member language '("javascript" "jsx" "ejs"))
+               (not (and (member language '("javascript" "jsx"))
                          (string-match-p "]:" prev-line)))
                (not (and (eq prev-char ?\:)
                          (string-match-p "^\\(case\\|default\\)" prev-line)))
                )
           (when debug (message "I25 : ternary"))
           (cond
-           ((not (funcall (if (member language '("javascript" "jsx" "ejs"))
+           ((not (funcall (if (member language '("javascript" "jsx"))
                               'rjsx-mode-javascript-statement-beginning
                             'rjsx-mode-block-statement-beginning)
                           pos reg-beg))
@@ -7319,7 +4398,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
            ) ;cond
           )
 
-         ((and (member language '("javascript" "jsx" "ejs"))
+         ((and (member language '("javascript" "jsx"))
                (or (member ?\, chars)
                    (member prev-char '(?\( ?\[))))
           (when debug (message "I26"))
@@ -7344,7 +4423,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
            ) ;cond
           )
 
-         ((and (member language '("javascript" "jsx" "ejs"))
+         ((and (member language '("javascript" "jsx"))
                (or (eq prev-char ?\))
                    (string-match-p "^else$" prev-line))
                )
@@ -7370,57 +4449,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
            ) ;cond
 
           )
-
-         ;; TODO : a retoucher completement car le code js a ete place ci-dessus
-         ;;((and (member language '("javascript" "jsx" "ejs" "php"))
-         ((and (member language '("php"))
-               (or (and (eq prev-char ?\))
-                        (string-match-p "^\\(for\\|if\\|while\\)[ ]*(" prev-line))
-                   (and (member language '("javascript" "jsx" "ejs"))
-                        (rjsx-mode-part-is-opener prev-pos reg-beg))
-                   (string-match-p "^else$" prev-line))
-               (not (string-match-p "^\\([{.]\\|->\\)" curr-line)))
-          (when debug (message "I28"))
-          (cond
-           ((and (eq prev-char ?\))
-                 (string-match-p "^\\(for\\|if\\|while\\)[ ]*(" prev-line))
-            (setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
-            )
-           ((member language '("javascript" "jsx"))
-            (setq offset
-                  (+ (car (rjsx-mode-javascript-indentation pos
-                                                           reg-col
-                                                           curr-indentation
-                                                           language
-                                                           reg-beg))
-                     rjsx-mode-code-indent-offset))
-            )
-           (t
-            (setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
-            )
-           )
-          )
-
-         ((and (member language '("php" "blade")) (string-match-p "^->" curr-line))
-          (when debug (message "I29"))
-          (cond
-           ((not (rjsx-mode-block-calls-beginning pos reg-beg))
-            )
-           ((cdr (assoc "lineup-calls" rjsx-mode-indentation-params))
-            ;;(message "point=%S" (point))
-            (if (looking-back "::[ ]*" (point-min))
-                (progn
-                  (re-search-backward "::[ ]*")
-                  (setq offset (current-column))
-                  ;;(message "ici%S offset=%S" (point) offset)
-                  )
-              (search-forward "->")
-              (setq offset (- (current-column) 2)))
-            )
-           (t
-            (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-           ))
-
          ((member ?\, chars)
           (when debug (message "I30"))
           (cond
@@ -7438,24 +4466,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
             (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
            ))
 
-         ((and (string= language "php") (member ?\. chars))
-          (when debug (message "I31"))
-          (cond
-           ((not (rjsx-mode-block-string-beginning pos reg-beg))
-            )
-           ((null (cdr (assoc "lineup-concats" rjsx-mode-indentation-params)))
-            (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-           ((not (eq curr-char ?\.))
-            (setq offset (current-column)))
-           (t
-            (setq offset (current-column))
-            (goto-char pos)
-            (when (cdr (assoc "lineup-quotes" rjsx-mode-indentation-params))
-              (looking-at "\\.[ \t\n]*")
-              (setq offset (- offset (length (match-string-no-properties 0)))))
-            )))
-
-         ((member language '("javascript" "jsx" "ejs" "underscore"))
+         ((member language '("javascript" "jsx"))
           (when debug (message "I32 : javascript-indentation"))
           ;;(message "js-indent")
           (setq offset (car (rjsx-mode-javascript-indentation pos
@@ -7488,15 +4499,8 @@ another auto-completion with different ac-sources (e.g. ac-php)")
         (setq offset (max 0 offset))
         (indent-line-to offset)
         (if (> diff 0) (move-to-column (+ (current-column) diff)))
-        (when (and (string= rjsx-mode-engine "mason")
-                   (= offset 0)
-                   (eq char ?\%))
-          (save-excursion
-            (font-lock-fontify-region (line-beginning-position) (line-end-position)))
-          ) ;when
         ) ;let
       ) ;when
-
     ))
 
 (defun rjsx-mode-bracket-level (pos limit)
@@ -7622,7 +4626,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
     (cond
      ((or (null open-ctx) (null (plist-get open-ctx :pos)))
       (setq offset initial-column))
-     ((and (member language '("javascript" "jsx" "ejs"))
+     ((and (member language '("javascript" "jsx"))
            (eq (plist-get open-ctx :char) ?\{)
            (rjsx-mode-looking-back "switch[ ]*" (plist-get open-ctx :pos))
            ;;(rjsx-mode-looking-back "switch[ ]*(.*)[ ]*" (plist-get open-ctx :pos))
@@ -9112,20 +6116,6 @@ Prompt user if TAG-NAME isn't provided."
 
        ((member language '("html" "xml"))
         (cond
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "django"))
-            (setq content (concat "{# " sel " #}")))
-           ((and (= rjsx-mode-comment-style 2) (member rjsx-mode-engine '("ejs" "erb")))
-            (setq content (concat "<%# " sel " %>")))
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "aspx"))
-            (setq content (concat "<%-- " sel " --%>")))
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "smarty"))
-            (setq content (concat "{* " sel " *}")))
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "blade"))
-            (setq content (concat "{{-- " sel " --}}")))
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "ctemplate"))
-            (setq content (concat "{{!-- " sel " --}}")))
-           ((and (= rjsx-mode-comment-style 2) (string= rjsx-mode-engine "razor"))
-            (setq content (concat "@* " sel " *@")))
            (t
             (setq content (concat "<!-- " sel " -->"))
             (when (< (length sel) 1)
@@ -9134,7 +6124,7 @@ Prompt user if TAG-NAME isn't provided."
             ))
         ) ;case html
 
-       ((member language '("php" "javascript" "java" "jsx"))
+       ((member language '("javascript" "jsx"))
         (let (alt)
           (cond
            ((get-text-property pos 'jsx-depth)
@@ -9153,12 +6143,6 @@ Prompt user if TAG-NAME isn't provided."
            ) ;cond
           ) ;let
         )
-
-       ((member language '("erb"))
-        (setq content (replace-regexp-in-string "^[ ]*" "#" sel)))
-
-       ((member language '("asp"))
-        (setq content (replace-regexp-in-string "^[ ]*" "''" sel)))
 
        (t
         (setq content (concat "/* " sel " */")))
@@ -9182,59 +6166,6 @@ Prompt user if TAG-NAME isn't provided."
     (when pos-after (goto-char pos-after))
 
     ))
-
-(defun rjsx-mode-comment-ejs-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "//" (+ beg 2))))
-
-(defun rjsx-mode-comment-erb-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "#" (+ beg 2))))
-
-(defun rjsx-mode-comment-django-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "#" end)
-    (rjsx-mode-insert-text-at-pos "#" (1+ beg))))
-
-(defun rjsx-mode-comment-dust-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "!" end)
-    (rjsx-mode-insert-text-at-pos "!" (1+ beg))))
-
-(defun rjsx-mode-comment-aspx-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "#" end)
-    (rjsx-mode-insert-text-at-pos "#" (1+ beg))))
-
-(defun rjsx-mode-comment-jsp-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "--" (+ beg 2))))
-
-(defun rjsx-mode-comment-go-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "*/" (1- end))
-    (rjsx-mode-insert-text-at-pos "/*" (+ beg (if (rjsx-mode-looking-at "{{" beg) 2 0)))))
-
-(defun rjsx-mode-comment-php-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-insert-text-at-pos "*/" (- end 1))
-    (rjsx-mode-insert-text-at-pos "/*" (+ beg (if (rjsx-mode-looking-at "<\\?php" beg) 5 3)))))
 
 (defun rjsx-mode-comment-boundaries (&optional pos)
   (interactive)
@@ -9309,66 +6240,6 @@ Prompt user if TAG-NAME isn't provided."
        ) ;cond
       (indent-according-to-mode)
       )))
-
-(defun rjsx-mode-uncomment-erb-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (if (string-match-p "<[%[:alpha:]]" (buffer-substring-no-properties (+ beg 2) (- end 2)))
-        (progn
-          (rjsx-mode-remove-text-at-pos 2 (1- end))
-          (rjsx-mode-remove-text-at-pos 3 beg))
-      (rjsx-mode-remove-text-at-pos 1 (+ beg 2))
-      ) ;if
-    )
-  )
-
-(defun rjsx-mode-uncomment-ejs-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 1 (+ beg 2))))
-
-(defun rjsx-mode-uncomment-django-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 2 (1- end))
-    (rjsx-mode-remove-text-at-pos 2 beg)))
-
-(defun rjsx-mode-uncomment-ctemplate-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 5 (- end 4))
-    (rjsx-mode-remove-text-at-pos 5 beg)))
-
-(defun rjsx-mode-uncomment-dust-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 1 (1- end))
-    (rjsx-mode-remove-text-at-pos 1 (1+ beg))))
-
-(defun rjsx-mode-uncomment-aspx-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 1 (1- end))
-    (rjsx-mode-remove-text-at-pos 1 (1+ beg))))
-
-(defun rjsx-mode-uncomment-jsp-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 2 (+ beg 2))))
-
-(defun rjsx-mode-uncomment-go-block (pos)
-  (let (beg end)
-    (setq beg (rjsx-mode-block-beginning-position pos)
-          end (rjsx-mode-block-end-position pos))
-    (rjsx-mode-remove-text-at-pos 2 (+ beg 2))
-    (rjsx-mode-remove-text-at-pos 2 (- end 5))))
 
 (defun rjsx-mode-snippet-names ()
   (let (codes)
@@ -9658,13 +6529,6 @@ Prompt user if TAG-NAME isn't provided."
 
 (defun rjsx-mode-detect-content-type ()
   (cond
-   ((and (string= rjsx-mode-engine "none")
-         (< (point) 16)
-         (eq (char-after 1) ?\#)
-         (string-match-p "php" (buffer-substring-no-properties
-                                (line-beginning-position)
-                                (line-end-position))))
-    (rjsx-mode-set-engine "php"))
    ((and (string= rjsx-mode-content-type "javascript")
          (< (point) rjsx-mode-chunk-length)
          (eq (char-after (point-min)) ?\/)
@@ -9868,13 +6732,6 @@ Prompt user if TAG-NAME isn't provided."
     (when (< (point) 16)
       (rjsx-mode-detect-content-type))
 
-    (when (and rjsx-mode-enable-engine-detection
-               (or (null rjsx-mode-engine) (string= rjsx-mode-engine "none"))
-               (< (point) rjsx-mode-chunk-length)
-               (rjsx-mode-detect-engine))
-      (rjsx-mode-on-engine-setted)
-      (rjsx-mode-buffer-highlight))
-
     (when (> (point) 1)
       (setq char (char-before)))
 
@@ -9899,10 +6756,7 @@ Prompt user if TAG-NAME isn't provided."
                     (string= (get-text-property (- (point) n) 'tag-name)
                              (get-text-property (point) 'tag-name))
                     )
-               (and (get-text-property (1- (point)) 'block-side)
-                    (string= rjsx-mode-engine "php")
-                    (looking-back "<\\?php[ ]*\n" (point-min))
-                    (looking-at-p "[ ]*\\?>"))))
+               nil))
       (newline-and-indent)
       (forward-line -1)
       (indent-according-to-mode)
@@ -10281,25 +7135,6 @@ Prompt user if TAG-NAME isn't provided."
 
 (defun rjsx-mode-closing-block (type)
   (cond
-   ((string= rjsx-mode-engine "php")       (concat "<?php end" type "; ?>"))
-   ((string= rjsx-mode-engine "django")    (concat "{% end" type " %}"))
-   ((string= rjsx-mode-engine "ctemplate") (concat "{{/" type "}}"))
-   ((string= rjsx-mode-engine "blade")
-    (if (string= type "section") (concat "@show") (concat "@end" type)))
-   ((string= rjsx-mode-engine "dust")      (concat "{/" type "}"))
-   ((string= rjsx-mode-engine "mako")      (concat "% end" type))
-   ((string= rjsx-mode-engine "closure")   (concat "{/" type "}"))
-   ((string= rjsx-mode-engine "smarty")    (concat "{/" type "}"))
-   ((string= rjsx-mode-engine "underscore")        "<% } %>")
-   ((string= rjsx-mode-engine "lsp")               "<% ) %>")
-   ((string= rjsx-mode-engine "erb")               "<% } %>")
-   ((string= rjsx-mode-engine "erb")               "<% end %>")
-   ((string= rjsx-mode-engine "go")                "{{end}}")
-   ((string= rjsx-mode-engine "velocity")          "#end")
-   ((string= rjsx-mode-engine "velocity")          "#{end}")
-   ((string= rjsx-mode-engine "template-toolkit")  "[% end %]")
-   ((member rjsx-mode-engine '("asp" "jsp"))
-    (if (string-match-p "[:.]" type) (concat "</" type ">") "<% } %>"))
    (t nil)
    ) ;cond
   )
@@ -10382,7 +7217,7 @@ Prompt user if TAG-NAME isn't provided."
     (goto-char pos)
     (let* ((n 0)
            (block-side (and (get-text-property pos 'block-side)
-                            (not (string= rjsx-mode-engine "razor"))))
+                            t))
            (paren (char-after))
            (pairs '((?\( . "[)(]")
                     (?\[ . "[\]\[]")
@@ -11024,9 +7859,6 @@ Prompt user if TAG-NAME isn't provided."
         (setq continue nil)
         (rjsx-mode-looking-at ".[ \t\n]*" pos)
         (setq pos (+ pos (length (match-string-no-properties 0)))))
-       ((and (string= rjsx-mode-engine "php")
-             (rjsx-mode-looking-back "\\_<\\(extends\\|implements\\)[ \n\t]*" pos))
-        (setq continue nil))
        (t
         (setq pos (1- pos)))
        ) ;cond
@@ -12140,83 +8972,6 @@ Prompt user if TAG-NAME isn't provided."
                       rjsx-mode-ac-sources-alist)))
           (setq ac-sources (cdr new-rjsx-mode-ac-sources)))))))
 
-;;---- MINOR MODE ADDONS -------------------------------------------------------
-
-(defun rjsx-mode-yasnippet-exit-hook ()
-  "Yasnippet exit hook"
-  (when (and (boundp 'yas-snippet-beg) (boundp 'yas-snippet-end))
-    (indent-region yas-snippet-beg yas-snippet-end)))
-
-(defun rjsx-mode-imenu-index ()
-  (interactive)
-  "Returns imenu items."
-  (let (toc-index
-        line)
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (setq line (buffer-substring-no-properties
-                    (line-beginning-position)
-                    (line-end-position)))
-        (let (found
-              (i 0)
-              item
-              regexp
-              type
-              type-idx
-              content
-              content-idx
-              content-regexp
-              close-tag-regexp
-              concat-str
-              jumpto
-              str)
-          (while (and (not found ) (< i (length rjsx-mode-imenu-regexp-list)))
-            (setq item (nth i rjsx-mode-imenu-regexp-list))
-            (setq regexp (nth 0 item))
-            (setq type-idx (nth 1 item))
-            (setq content-idx (nth 2 item))
-            (setq concat-str (nth 3 item))
-            (when (not (numberp content-idx))
-              (setq content-regexp (nth 2 item)
-                    close-tag-regexp (nth 4 item)
-                    content-idx nil))
-
-            (when (string-match regexp line)
-
-              (cond
-               (content-idx
-                (setq type (match-string type-idx line))
-                (setq content (match-string content-idx line))
-                (setq str (concat type concat-str content))
-                (setq jumpto (line-beginning-position)))
-               (t
-                (let (limit)
-                  (setq type (match-string type-idx line))
-                  (goto-char (line-beginning-position))
-                  (save-excursion
-                    (setq limit (re-search-forward close-tag-regexp (point-max) t)))
-
-                  (when limit
-                    (when (re-search-forward content-regexp limit t)
-                      (setq content (match-string 1))
-                      (setq str (concat type concat-str content))
-                      (setq jumpto (line-beginning-position))
-                      )
-                    )))
-               )
-              (when str (setq toc-index
-                              (cons (cons str jumpto)
-                                    toc-index)
-                              )
-                    (setq found t))
-              )
-            (setq i (1+ i))))
-        (forward-line)
-        (goto-char (line-end-position)) ;; make sure we are at eobp
-        ))
-    (nreverse toc-index)))
-
 ;;---- UNIT TESTING ------------------------------------------------------------
 
 (defun rjsx-mode-test ()
@@ -12291,67 +9046,8 @@ Prompt user if TAG-NAME isn't provided."
   (rjsx-mode-buffer-highlight))
 
 (defun rjsx-mode-on-engine-setted ()
-  (let (elt elts engines)
-
-    (when (string= rjsx-mode-engine "razor") (setq rjsx-mode-enable-block-face t))
-    (setq rjsx-mode-engine-attr-regexp (cdr (assoc rjsx-mode-engine rjsx-mode-engine-attr-regexps)))
-    (setq rjsx-mode-engine-token-regexp (cdr (assoc rjsx-mode-engine rjsx-mode-engine-token-regexps)))
-
-    ;;(message "%S %S %S" rjsx-mode-engine rjsx-mode-engine-attr-regexp rjsx-mode-engine-token-regexp)
-
-    (when (null rjsx-mode-minor-engine)
-      (setq rjsx-mode-minor-engine "none"))
-
-    (setq elt (assoc rjsx-mode-engine rjsx-mode-engine-open-delimiter-regexps))
-    (cond
-     (elt
-      (setq rjsx-mode-block-regexp (cdr elt)))
-     ((string= rjsx-mode-engine "archibus")
-      (setq rjsx-mode-block-regexp nil))
-     (t
-      (setq rjsx-mode-engine "none"))
-     )
-
-    (unless (boundp 'rjsx-mode-extra-auto-pairs)
-      (setq rjsx-mode-extra-auto-pairs nil))
-
-    (setq rjsx-mode-auto-pairs
-          (append
-           (cdr (assoc rjsx-mode-engine rjsx-mode-engines-auto-pairs))
-           (cdr (assoc nil rjsx-mode-engines-auto-pairs))
-           (cdr (assoc rjsx-mode-engine rjsx-mode-extra-auto-pairs))
-           (cdr (assoc nil rjsx-mode-extra-auto-pairs))))
-
-    (unless (boundp 'rjsx-mode-extra-snippets)
-      (setq rjsx-mode-extra-snippets nil))
-
-    (setq elts
-          (append
-           (cdr (assoc rjsx-mode-engine rjsx-mode-extra-snippets))
-           (cdr (assoc nil             rjsx-mode-extra-snippets))
-           (cdr (assoc rjsx-mode-engine rjsx-mode-engines-snippets))
-           (cdr (assoc nil             rjsx-mode-engines-snippets))))
-
-    ;;(message "%S" elts)
-
-    (dolist (elt elts)
-      (unless (assoc (car elt) rjsx-mode-snippets)
-        (setq rjsx-mode-snippets (append (list elt) rjsx-mode-snippets)))
-      )
-
-    (setq rjsx-mode-engine-font-lock-keywords
-          (symbol-value (cdr (assoc rjsx-mode-engine rjsx-mode-engines-font-lock-keywords))))
-
-    (when (and (string= rjsx-mode-minor-engine "jinja")
-               (not (member "endtrans" rjsx-mode-django-control-blocks)))
-      (add-to-list 'rjsx-mode-django-control-blocks "endtrans")
-      (setq rjsx-mode-django-control-blocks-regexp
-            (regexp-opt rjsx-mode-django-control-blocks t))
-      )
-
-;;    (message "%S" (symbol-value (cdr (assoc rjsx-mode-engine rjsx-mode-engines-font-lock-keywords))))
-
-    ))
+  nil ;; TODO(colin): remove
+    )
 
 (defun rjsx-mode-detect-engine ()
   (save-excursion
@@ -12401,22 +9097,6 @@ Prompt user if TAG-NAME isn't provided."
         ) ;dolist
       ) ;when
 
-    (unless rjsx-mode-engine
-      (setq found nil)
-      (dolist (elt rjsx-mode-engine-file-regexps)
-        ;;(message "%S %S" (cdr elt) buff-name)
-        (when (and (not found) (string-match-p (cdr elt) buff-name))
-          (setq rjsx-mode-engine (car elt)
-                found t))
-        )
-      )
-
-    (when (and (or (null rjsx-mode-engine) (string= rjsx-mode-engine "none"))
-               (string-match-p "php" (buffer-substring-no-properties
-                                      (line-beginning-position)
-                                      (line-end-position))))
-      (setq rjsx-mode-engine "php"))
-
     (when (and (string= rjsx-mode-content-type "javascript")
                (string-match-p "@jsx"
                                (buffer-substring-no-properties
@@ -12431,30 +9111,7 @@ Prompt user if TAG-NAME isn't provided."
       (setq rjsx-mode-minor-engine rjsx-mode-engine
             rjsx-mode-engine (rjsx-mode-engine-canonical-name rjsx-mode-engine))
       )
-
-    (when (and (or (null rjsx-mode-engine)
-                   (string= rjsx-mode-engine "none"))
-               rjsx-mode-enable-engine-detection)
-      (rjsx-mode-detect-engine))
-
-    (rjsx-mode-on-engine-setted)
-
     ))
-
-(defun rjsx-mode-engine-canonical-name (name)
-  (let (engine)
-    (cond
-     ((null name)
-      nil)
-     ((assoc name rjsx-mode-engines)
-      name)
-     (t
-      (dolist (elt rjsx-mode-engines)
-        (when (and (null engine) (member name (cdr elt)))
-          (setq engine (car elt)))
-        ) ;dolist
-      engine)
-     )))
 
 (defun rjsx-mode-on-after-save ()
   (when rjsx-mode-is-scratch
