@@ -201,12 +201,7 @@ See rjsx-mode-block-face."
   :group 'rjsx-mode)
 
 (defcustom rjsx-mode-extra-auto-pairs '()
-  "A list of additional snippets."
-  :type 'list
-  :group 'rjsx-mode)
-
-(defcustom rjsx-mode-extra-snippets '()
-  "A list of additional snippets."
+  "A list of additional auto-pairs."
   :type 'list
   :group 'rjsx-mode)
 
@@ -598,7 +593,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
 (defvar rjsx-mode-obarray nil)
 (defvar rjsx-mode-overlay-tag-start nil)
 (defvar rjsx-mode-overlay-tag-end nil)
-(defvar rjsx-mode-snippets nil)
 (defvar rjsx-mode-time (current-time))
 
 (defvar rjsx-mode-indentless-elements
@@ -1043,7 +1037,6 @@ another auto-completion with different ac-sources")
     (define-key map [menu-bar wm nav]         '(menu-item "Tag/Block navigation" rjsx-mode-navigate))
     (define-key map [menu-bar wm exp]         '(menu-item "Mark and Expand" rjsx-mode-mark-and-expand))
     (define-key map [menu-bar wm spa]         '(menu-item "Toggle whitespaces" rjsx-mode-whitespaces-show))
-    (define-key map [menu-bar wm sni]         '(menu-item "Insert snippet" rjsx-mode-snippet-insert))
 
     ;;--------------------------------------------------------------------------
     ;; "C-c <LETTER>" are reserved for users
@@ -1117,7 +1110,6 @@ another auto-completion with different ac-sources")
     (define-key map (kbd "C-c C-m")   'rjsx-mode-mark-and-expand)
     (define-key map (kbd "C-c C-n")   'rjsx-mode-navigate)
     (define-key map (kbd "C-c C-r")   'rjsx-mode-reload)
-    (define-key map (kbd "C-c C-s")   'rjsx-mode-snippet-insert)
     ;;C-c C-t : tag
     (define-key map (kbd "C-c C-w")   'rjsx-mode-whitespaces-show)
 
@@ -1244,17 +1236,6 @@ another auto-completion with different ac-sources")
   (add-hook 'after-save-hook        'rjsx-mode-on-after-save t t)
   (add-hook 'change-major-mode-hook 'rjsx-mode-on-exit nil t)
   (add-hook 'post-command-hook      'rjsx-mode-on-post-command nil t)
-
-  (cond
-   ((boundp 'yas-after-exit-snippet-hook)
-    (add-hook 'yas-after-exit-snippet-hook
-              'rjsx-mode-yasnippet-exit-hook
-              t t))
-   ((boundp 'yas/after-exit-snippet-hook)
-    (add-hook 'yas/after-exit-snippet-hook
-              'rjsx-mode-yasnippet-exit-hook
-              t t))
-   )
 
   (when rjsx-mode-enable-whitespace-fontification
     (rjsx-mode-whitespaces-on))
@@ -6233,54 +6214,6 @@ Prompt user if TAG-NAME isn't provided."
        ) ;cond
       (indent-according-to-mode)
       )))
-
-(defun rjsx-mode-snippet-names ()
-  (let (codes)
-    (dolist (snippet rjsx-mode-snippets)
-      (add-to-list 'codes (car snippet) t))
-    codes))
-
-(defun rjsx-mode-snippet-insert (code)
-  "Insert a snippet."
-  (interactive
-   (list (completing-read "Snippet: " (rjsx-mode-snippet-names))))
-  (let (beg
-        (continue t)
-        (counter 0)
-        end
-        sel
-        snippet
-        (l (length rjsx-mode-snippets))
-        pos)
-    (when mark-active
-      (setq sel (rjsx-mode-trim (buffer-substring-no-properties
-                                (region-beginning) (region-end))))
-      (delete-region (region-beginning) (region-end)))
-    (while (and continue (< counter l))
-      (setq snippet (nth counter rjsx-mode-snippets))
-      (when (string= (car snippet) code)
-        (setq continue nil))
-      (setq counter (1+ counter)))
-    (when snippet
-      (setq snippet (cdr snippet))
-      (setq beg (point-at-bol))
-      (insert snippet)
-      (setq pos (point)
-            end (point))
-      (when (string-match-p "|" snippet)
-        (search-backward "|")
-        (delete-char 1)
-        (setq pos (point)
-              end (1- end)))
-      (when sel
-        (insert sel)
-        (setq pos (point)
-              end (+ end (length sel))))
-      (goto-char end)
-      (setq end (point-at-eol))
-      (unless sel (goto-char pos))
-      (indent-region beg end))
-    ))
 
 (defun rjsx-mode-looking-at (regexp pos)
   (save-excursion
