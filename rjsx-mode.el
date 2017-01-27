@@ -3835,7 +3835,7 @@ another auto-completion with different ac-sources")
 (defun rjsx-mode-point-context (pos)
   "POS should be at the beginning of the indentation."
   (save-excursion
-    (let (curr-char curr-indentation curr-line
+    (let (curr-char curr-indentation curr-line curr-line-number
           language
           options
           reg-beg reg-col
@@ -3995,6 +3995,7 @@ another auto-completion with different ac-sources")
        )
 
       (goto-char pos)
+      (setq curr-line-number (line-number-at-pos))
       (setq curr-line (rjsx-mode-trim
                        (buffer-substring-no-properties
                         (line-beginning-position)
@@ -4037,6 +4038,7 @@ another auto-completion with different ac-sources")
       (list :curr-char curr-char
             :curr-indentation curr-indentation
             :curr-line curr-line
+            :curr-line-number curr-line-number
             :language language
             :options options
             :prev-char prev-char
@@ -4049,7 +4051,7 @@ another auto-completion with different ac-sources")
       )))
 
 (defun rjsx-mode-indent-line ()
-
+  "Calculate and apply intendation to the line at point."
   (rjsx-mode-propertize)
 
   (let ((offset nil)
@@ -4062,11 +4064,11 @@ another auto-completion with different ac-sources")
       (back-to-indentation)
       (setq char (char-after))
       (let* ((pos (point))
-             (starting-line (line-number-at-pos))
              (ctx (rjsx-mode-point-context pos))
              (curr-char (plist-get ctx :curr-char))
              (curr-indentation (plist-get ctx :curr-indentation))
              (curr-line (plist-get ctx :curr-line))
+             (curr-line-number (plist-get ctx :curr-line-number))
              (language (plist-get ctx :language))
              (prev-char (plist-get ctx :prev-char))
              (prev-indentation (plist-get ctx :prev-indentation))
@@ -4194,7 +4196,7 @@ another auto-completion with different ac-sources")
            (rjsx-mode-attr-indent-offset
             (setq offset (+ (current-column) rjsx-mode-attr-indent-offset)))
            ((looking-at-p (concat rjsx-mode-start-tag-regexp "[ ]*\n"))
-            (if (= (line-number-at-pos) (1- starting-line))
+            (if (= (line-number-at-pos) (1- curr-line))
                 (setq offset (+ (or prev-indentation 0) (or rjsx-mode-attr-indent-offset 4)))
               (setq offset (or prev-indentation 0))))
            ((rjsx-mode-attribute-next)
