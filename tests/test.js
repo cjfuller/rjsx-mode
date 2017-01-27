@@ -15,18 +15,18 @@ Relay.createContainer(Story, {
     },
     fragments: {
         story: (variables) => Relay.QL`
-      fragment on Story {
-        comments(first: $numCommentsToShow) @include(if: $showComments) {
-          edges {
-            node {
-              author { name },
-              id,
-              text,
-            },
-          },
-        },
-      }
-    `,
+            fragment on Story {
+                comments(first: $numCommentsToShow) @include(if: $showComments) {
+                    edges {
+                        node {
+                            author { name },
+                            id,
+                            text,
+                        },
+                    },
+                },
+            }
+        `,
     }
 });
 
@@ -34,7 +34,7 @@ var cs = {completed: this.props.todo.completed,
           editing: this.props.editing};
 
 const f = (x) =>
-      x + 1;
+    x + 1;
 
 if (a)
     if (b)
@@ -99,7 +99,7 @@ $('<div style="background: #fff">Open</div>')
     .attr("data-id", "foo");
 
 $(document.body).append("<span/>")
-    .attr(...);
+                .attr(...);
 
 var str = "toto";
 
@@ -141,27 +141,27 @@ if (true) {
     var x = y,
         cd = 3;
     export const {x, y} = z,
-    a = 10;
+                 a = 10;
 }
 
 var pathData = this.barData
-    .map(function(d) {
-        return [{x: d.start_time_ms, vol: d.volume},
-                {x: d.end_time_ms, vol: d.volume}];
-    })
-    .reduce(function(a, b) {
-        return a.concat(b);
-    });
+                   .map(function(d) {
+                       return [{x: d.start_time_ms, vol: d.volume},
+                               {x: d.end_time_ms, vol: d.volume}];
+                   })
+                   .reduce(function(a, b) {
+                       return a.concat(b);
+                   });
 
 function toto(c) {
     switch(elem) {
-    case "textarea" :
-        return ( 1 );
-        break;
-    case "text" :
-        return ( 2 );
-    default :
-        return 0;
+        case "textarea" :
+            return ( 1 );
+            break;
+        case "text" :
+            return ( 2 );
+        default :
+            return 0;
     }
 }
 
@@ -198,7 +198,7 @@ newB.firstMethod('x')
 
 var bar = 1;
 var foo = (bar == 1) ?
-    "ONE" : "OTHER";  // THIS IS THE PROBLEM
+          "ONE" : "OTHER";  // THIS IS THE PROBLEM
 
 foo() {
     bar()
