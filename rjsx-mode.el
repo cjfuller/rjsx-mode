@@ -34,7 +34,7 @@
   :group 'rjsx-mode)
 
 (defcustom rjsx-mode-block-padding 0
-  "Multi-line block (php, ruby, java, python, asp, etc.) left padding."
+  "Multi-line block left padding."
   :type 'integer
   :group 'rjsx-mode)
 
@@ -59,7 +59,7 @@
 
 (defcustom rjsx-mode-code-indent-offset
   (if (and (boundp 'standard-indent) standard-indent) standard-indent 2)
-  "Code (javascript, php, etc.) indentation level."
+  "Code (javascript, etc.) indentation level."
   :type 'integer
   :safe #'integerp
   :group 'rjsx-mode)
@@ -147,7 +147,7 @@ See rjsx-mode-block-face."
   :group 'rjsx-mode)
 
 (defcustom rjsx-mode-enable-string-interpolation t
-  "Enable string interpolation fontification (php and erb)."
+  "Enable string interpolation fontification."
   :type 'boolean
   :group 'rjsx-mode)
 
@@ -674,7 +674,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
 (defvar rjsx-mode-comment-formats
   '(("java"       . "/*")
     ("javascript" . "/*")
-    ("php"        . "/*")
     ))
 
 (defvar rjsx-mode-smart-quotes
@@ -957,7 +956,7 @@ the environment as needed for ac-sources, right before they're used.")
 Can be set inside a hook in 'rjsx-mode-before-auto-complete-hooks' to
 non nil to ignore the defadvice which sets ac-sources according to current
 language. This is needed if the corresponding auto-completion triggers
-another auto-completion with different ac-sources (e.g. ac-php)")
+another auto-completion with different ac-sources")
 
 (defvar rjsx-mode-ac-sources-alist nil
   "alist mapping language names to ac-sources for that language.")
@@ -1431,7 +1430,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
       )))
 
 (defun rjsx-mode-block-delimiters-set (reg-beg reg-end delim-open delim-close)
-  "Set text-property 'block-token to 'delimiter-(beg|end) on block delimiters (e.g. <?php ?>)"
+  "Set text-property 'block-token to 'delimiter-(beg|end) on block delimiters"
   ;;(message "reg-beg(%S) reg-end(%S) delim-open(%S) delim-close(%S)" reg-beg reg-end delim-open delim-close)
   (when delim-open
     (put-text-property reg-beg (+ reg-beg (length delim-open))
@@ -4656,21 +4655,6 @@ another auto-completion with different ac-sources (e.g. ac-php)")
       (cond
        ((null pos)
         (setq indentation initial-column))
-       ((and (member language '("php"))
-             (eq char ?\{)
-             ;;(rjsx-mode-looking-back "switch[ ]*(.*)[ ]*" pos)
-             (rjsx-mode-looking-back "switch[ ]*" pos)
-             (not (looking-at-p "case\\|default")))
-        (setq indentation (+ indentation (* language-offset 2)))
-        )
-       ((and (member language '("php"))
-             (eq char ?\{)
-             (goto-char pos)
-             (rjsx-mode-looking-back "[)][ ]*" pos)
-             (search-backward ")")
-             (rjsx-mode-block-opening-paren limit))
-        (setq indentation (+ (current-indentation) language-offset))
-        )
        (t
         (setq indentation (+ indentation language-offset))
         )
@@ -5180,7 +5164,7 @@ another auto-completion with different ac-sources (e.g. ac-php)")
           (setq continue nil))
         )
       (if (<= (point) limit)
-          ;;todo : affiner (le + 3 n est pas générique cf. <?php <% <%- etc.)
+          ;;todo : affiner (le + 3 n est pas générique cf. <% <%- etc.)
           (setq beg (if (< (+ limit 3) end) (+ limit 3) end))
         (setq beg (line-beginning-position))
         ) ;if
