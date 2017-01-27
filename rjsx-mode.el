@@ -4237,7 +4237,7 @@ another auto-completion with different ac-sources")
            ((not (rjsx-mode-tag-beginning))
             )
            ((string-match-p "^/?>" curr-line)
-            (setq offset (current-column)))
+            (setq offset (- (or prev-indentation 0) (or rjsx-mode-attr-indent-offset 4))))
            (rjsx-mode-attr-indent-offset
             (setq offset (+ (current-column) rjsx-mode-attr-indent-offset)))
            ((looking-at-p (concat rjsx-mode-start-tag-regexp "[ ]*\n"))
