@@ -2425,7 +2425,6 @@ another auto-completion with different ac-sources")
       ) ;let
     ) ;t
    ) ;cond
-  ;;(message "beg: %S" pos)
   pos)
 
 (defun rjsx-mode-jsx-element-next (reg-end)
@@ -4255,7 +4254,7 @@ another auto-completion with different ac-sources")
           (when debug (message "I10"))
           (cond
            ((get-text-property pos 'tag-beg)
-            ;;(message "ici")
+            (when debug (message "I10.1"))
             (setq offset (rjsx-mode-markup-indentation pos))
             )
            ((and rjsx-mode-indentless-elements
@@ -4267,11 +4266,13 @@ another auto-completion with different ac-sources")
                         (and (rjsx-mode-element-parent)
                              (member (get-text-property (point) 'tag-name) rjsx-mode-indentless-elements))))
                  )
+            (when debug (message "I10.2"))
             (setq offset nil))
            ((or (eq (length curr-line) 0)
                 (= rjsx-mode-indent-style 2)
                 (get-text-property pos 'tag-beg)
                 (get-text-property pos 'reg-beg))
+            (when debug (message "I10.3"))
             (setq offset (rjsx-mode-markup-indentation pos))
             )
            )
@@ -4994,6 +4995,7 @@ another auto-completion with different ac-sources")
 (defun rjsx-mode-markup-indentation-origin (pos)
   (save-excursion
     (let* ((continue (not (bobp)))
+           (curr-line (rjsx-mode-line-number pos))
            ;;         (pos (point))
            (part-side (not (null (get-text-property pos 'part-side)))) ;part-side at the origin
            (types '(start end void)))
@@ -5004,6 +5006,11 @@ another auto-completion with different ac-sources")
                   continue nil)
           (back-to-indentation)
           (setq pos (point))
+          (setq curr-line (rjsx-mode-line-number pos))
+          ;; we want to pick up indentation of tags that do not start a line,
+          ;; so we need to check for a tag on the same line
+          (when (= curr-line (rjsx-mode-line-number (rjsx-mode-tag-next-position pos)))
+            (setq pos (rjsx-mode-tag-next-position pos)))
           (setq continue (not (or (and (null part-side)
                                        (null (get-text-property pos 'part-side))
                                        (get-text-property pos 'tag-beg)
@@ -5021,6 +5028,8 @@ another auto-completion with different ac-sources")
           ) ;if
         ) ;while
       ;;(message "indent-origin=%S" pos)
+      (back-to-indentation)
+      (setq pos (point))
       pos)))
 
 ;;TODO : prendre en compte part-token
