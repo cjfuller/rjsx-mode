@@ -288,11 +288,6 @@ See rjsx-mode-block-face."
   "Face for symbols."
   :group 'rjsx-mode-faces)
 
-(defface rjsx-mode-doctype-face
-  '((t :foreground "Grey"))
-  "Face for html doctype."
-  :group 'rjsx-mode-faces)
-
 (defface rjsx-mode-html-tag-face
   '((((class color) (min-colors 88) (background dark))  :foreground "Snow4")
     (((class color) (min-colors 88) (background light)) :foreground "Snow4")
@@ -1711,19 +1706,6 @@ another auto-completion with different ac-sources")
             (setq props (list 'tag-name tname 'tag-type 'start)))
            ) ;cond
           )
-         ((and (eq char ?\!) (eq (aref tname 1) ?\-))
-          (setq close-expr "-->"
-                props '(tag-type comment)))
-         ((string= tname "?xml")
-          (setq regexp rjsx-mode-regexp2
-                close-expr "?>"
-                props '(tag-type declaration)))
-         ((string= tname "![cdata[")
-          (setq close-expr "]]>"
-                props '(tag-type cdata)))
-         ((string= tname "!doctype")
-          (setq regexp rjsx-mode-regexp2
-                props '(tag-type doctype)))
          ) ;cond
 
         (cond
@@ -1749,9 +1731,6 @@ another auto-completion with different ac-sources")
             (cond
              ((string-match-p " type[ ]*=[ ]*[\"']text/\\(jsx\\|babel\\)" script)
               (setq element-content-type "jsx"))
-             ((string-match-p " type[ ]*=[ ]*[\"']text/\\(x-handlebars\\|x-jquery-tmpl\\|x-jsrender\\|html\\|ng-template\\|template\\|mustache\\|x-dust-template\\)" script)
-              (setq element-content-type "html"
-                    part-close-tag nil))
              ((string-match-p " type[ ]*=[ ]*[\"']application/\\(ld\\+json\\|json\\)" script)
               (setq element-content-type "json"))
              (t
@@ -2981,12 +2960,6 @@ another auto-completion with different ac-sources")
       (put-text-property beg end 'font-lock-face 'rjsx-mode-comment-face)
       (when (and rjsx-mode-enable-comment-interpolation (> (- end beg) 5))
         (rjsx-mode-interpolate-comment beg end nil)))
-     ((eq type 'cdata)
-      (put-text-property beg end 'font-lock-face 'rjsx-mode-doctype-face))
-     ((eq type 'doctype)
-      (put-text-property beg end 'font-lock-face 'rjsx-mode-doctype-face))
-     ((eq type 'declaration)
-      (put-text-property beg end 'font-lock-face 'rjsx-mode-doctype-face))
      (name
       (setq face (cond
                   ((and rjsx-mode-enable-element-tag-fontification
