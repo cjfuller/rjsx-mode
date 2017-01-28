@@ -2,6 +2,7 @@
 ;;; -*- coding: utf-8 -*-
 
 ;;; Code:
+(require 'seq)
 
 ;;---- CONSTS ------------------------------------------------------------------
 
@@ -3832,6 +3833,30 @@ another auto-completion with different ac-sources")
 
 ;;---- INDENTATION -------------------------------------------------------------
 
+(defvar rjsx-mode-indentation-rules nil
+  "A list of indentation rules to apply head-to-tail.
+An indenation rule consists of a pair with car a predicate that takes a context
+and returns whether the rule applies, and a cdr a function that takes a
+context and returns the desired indentation.")
+
+(defvar rjsx-mode-indent-debug nil
+  "If t, print debugging messages when applying indentation.")
+
+(defmacro def-indentation-rule (name cond-form &rest body)
+  "Define an indenation rule.
+NAME: the name of the rule (for documentation and debugging).
+COND-FORM: a condition that determines whether the rule applies.  It can
+reference the variable `ctx`, which contains a context for the point being
+indented.
+BODY: the rule itself, which should return the amount of indentation required.
+Can also reference `ctx`.  Will be wrapped in a (save-excursion) to ensure that
+it doesn't change point."
+  `(let ((rule (cons (lambda (ctx) (save-excursion ,cond-form))
+                      (lambda (ctx)
+                        (when rjsx-mode-indent-debug (message "IR: %S" ,name))
+                        (save-excursion ,@body)))))
+     (setq rjsx-mode-indentation-rules (cons rule rjsx-mode-indentation-rules))))
+
 (defun rjsx-mode-point-context (pos)
   "POS should be at the beginning of the indentation."
   (save-excursion
@@ -3842,7 +3867,8 @@ another auto-completion with different ac-sources")
           prev-char prev-indentation prev-line prev-pos
           token
           part-language
-          depth)
+          depth
+          char)
 
       (setq reg-beg (point-min)
             reg-col 0
@@ -4034,13 +4060,19 @@ another auto-completion with different ac-sources")
        ((not (member language '("html" "xml")))
         (setq reg-col (if rjsx-mode-block-padding (+ reg-col rjsx-mode-block-padding) 0)))
        )
+      (back-to-indentation)
+      (setq char (char-after))
+      (setq pos (point))
 
-      (list :curr-char curr-char
+      (list
+            :char char
+            :curr-char curr-char
             :curr-indentation curr-indentation
             :curr-line curr-line
             :curr-line-number curr-line-number
             :language language
             :options options
+            :pos pos
             :prev-char prev-char
             :prev-indentation prev-indentation
             :prev-line prev-line
@@ -4049,6 +4081,80 @@ another auto-completion with different ac-sources")
             :reg-col reg-col
             :token token)
       )))
+
+(defun rjsx-mode-any-rules-apply-p (ctx)
+  "Do any of the indentation rules apply to current context?
+CTX: the current context at the point being indented."
+  (let ((conditions (seq-map #'car rjsx-mode-indentation-rules)))
+    (seq-some (lambda (condition) (funcall condition ctx)) conditions)))
+
+(defun rjsx-mode-call-matching-rule (ctx)
+  "Call the first matching indentation rule.
+CTX: the current context at the point being indented."
+  (let ((rule (seq-find (lambda (rule) (funcall (car rule) ctx)) rjsx-mode-indentation-rules)))
+    (if rule
+        (funcall (cdr rule) ctx)
+      ;; TODO(colin): perhaps assert that a rule was found instead of returing 0 in debug mode?
+      0)))
+
+;; Indentation helpers
+(defun rjsx-mode-indent-comment (ctx)
+  "Find the indentation for a comment.
+CTX: the current indentatation context at point."
+  (save-excursion
+    (let ((offset 0)
+          (pos (plist-get ctx :pos)))
+      (if (eq (get-text-property pos 'tag-type) 'comment)
+          (rjsx-mode-tag-beginning)
+        (goto-char (car
+                    (rjsx-mode-property-boundaries
+                     (if (eq (get-text-property (plist-get ctx :pos) 'part-token) 'comment)
+                         'part-token
+                       'block-token)
+                     pos))))
+      (setq offset (current-column))
+      (cond
+       ((member (buffer-substring-no-properties (point) (+ (point) 2)) '("/*" "{*" "@*"))
+        (cond
+         ((eq ?\* (plist-get ctx :curr-char))
+          (setq offset (+ offset 1)))
+         (t
+          (setq offset (+ offset 3)))
+         ) ;cond
+        )
+       ;; TODO(colin): remove non-jsx comment syntax.
+       ((string= (buffer-substring-no-properties (point) (+ (point) 4)) "<!--")
+        (cond
+         ((string-match-p "^<!\\[endif" (plist-get ctx :curr-line))
+          )
+         ((looking-at-p "<!--\\[if")
+          (setq offset (+ offset rjsx-mode-markup-indent-offset)))
+         ((eq ?\- (plist-get ctx :curr-char))
+          (setq offset (+ offset 3)))
+         (t
+          (setq offset (+ offset 5)))
+         ) ;cond
+        )
+       ) ;cond
+      offset
+      )
+  ))
+
+;; Indentation rules are listed in reverse priority order.
+(def-indentation-rule
+  "Default: indent the same as the last line."
+  nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
+  (plist-get ctx :prev-indentation))
+
+(def-indentation-rule
+  "Comment indentation."
+  (string= (plist-get ctx :token) "comment")
+  (rjsx-mode-indent-comment ctx))
+
+(def-indentation-rule
+  "No offset at beginning of buffer."
+  (or (bobp) (= (line-number-at-pos (plist-get ctx :pos)) 1))
+  0)
 
 (defun rjsx-mode-indent-line ()
   "Calculate and apply intendation to the line at point."
@@ -4081,61 +4187,9 @@ another auto-completion with different ac-sources")
              (chars (list curr-char prev-char))
              (tmp nil))
 
-        ;;(message "%S" language)
-        ;;(message "curr-char=[%c] prev-char=[%c]\n%S" curr-char prev-char ctx)
-
         (cond
-
-         ((or (bobp) (= (line-number-at-pos pos) 1))
-          (when debug (message "I01"))
-          (setq offset 0))
-
-         ((string= token "string")
-          (when debug (message "I02 : string"))
-          (cond
-           ((and (member language '("javascript" "jsx"))
-                 (rjsx-mode-is-relayql-string pos))
-            (setq offset (rjsx-mode-relayql-indentation pos))
-            )
-           (t
-            (setq offset nil))
-           ) ;cond
-          ) ;case string
-
-         ((string= token "comment")
-          (when debug (message "I03 : comment"))
-          (if (eq (get-text-property pos 'tag-type) 'comment)
-              (rjsx-mode-tag-beginning)
-            (goto-char (car
-                        (rjsx-mode-property-boundaries
-                         (if (eq (get-text-property pos 'part-token) 'comment)
-                             'part-token
-                           'block-token)
-                         pos))))
-          (setq offset (current-column))
-          (cond
-           ((member (buffer-substring-no-properties (point) (+ (point) 2)) '("/*" "{*" "@*"))
-            (cond
-             ((eq ?\* curr-char)
-              (setq offset (+ offset 1)))
-             (t
-              (setq offset (+ offset 3)))
-             ) ;cond
-            )
-           ((string= (buffer-substring-no-properties (point) (+ (point) 4)) "<!--")
-            (cond
-             ((string-match-p "^<!\\[endif" curr-line)
-              )
-             ((looking-at-p "<!--\\[if")
-              (setq offset (+ offset rjsx-mode-markup-indent-offset)))
-             ((eq ?\- curr-char)
-              (setq offset (+ offset 3)))
-             (t
-              (setq offset (+ offset 5)))
-             ) ;cond
-            )
-           ) ;cond
-          ) ;case comment
+         ((rjsx-mode-any-rules-apply-p ctx)
+          (setq offset (rjsx-mode-call-matching-rule ctx)))
 
          ((and (get-text-property pos 'block-beg)
                (or (rjsx-mode-block-is-close pos)
