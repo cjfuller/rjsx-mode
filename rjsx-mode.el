@@ -4132,6 +4132,7 @@ CTX: the current indentatation context at point."
         )
        ;; TODO(colin): remove non-jsx comment syntax.
        ((string= (buffer-substring-no-properties (point) (+ (point) 4)) "<!--")
+        (rjsx-mode-hypothesize-unused)
         (cond
          ((string-match-p "^<!\\[endif" (plist-get ctx :curr-line))
           )
@@ -4155,6 +4156,35 @@ CTX: the current indentatation context at point."
   (plist-get ctx :prev-indentation))
 
 (def-indentation-rule
+  "Indent after a line ending in an operator."
+  ;; TODO(colin): simplify this condition.
+  (let ((prev-line (plist-get ctx :prev-line))
+        (curr-line (plist-get ctx :curr-line))
+        (prev-char (plist-get ctx :prev-char)))
+    (and
+     (or (string-match-p "[&|?:+-]$" prev-line)
+         (string-match-p "^[&|?:+-]" curr-line))
+     (not (string-match-p "]:" prev-line))
+     (not (and (eq prev-char ?\:)
+               (string-match-p "^\\(case\\|default\\)" prev-line)))))
+  (max (plist-get ctx :reg-col)
+       (cond
+        ;; TODO(colin): checking this condition will move point.  Fix.
+        ((not (rjsx-mode-javascript-statement-beginning
+               (plist-get ctx :pos) (plist-get ctx :reg-beg)))
+         (rjsx-mode-hypothesize-unused)
+         0)
+        ((null (cdr (assoc "lineup-ternary" rjsx-mode-indentation-params)))
+         (+ (current-indentation) rjsx-mode-code-indent-offset))
+        ((and (member (plist-get ctx :curr-char) '(?\+ ?\- ?\& ?\| ?\? ?\:))
+              (not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min))))
+         (let ((prev-col (current-column)))
+           (goto-char (plist-get ctx :pos))
+           (looking-at "\\(||\\|&&\\|[&|?:+-]\\)[ \t\n]*")
+           (- prev-col (length (match-string-no-properties 0)))))
+        (t (current-column)))))
+
+(def-indentation-rule
   "Indent after a line ending in = or =>."
   (string-match-p "=[>]?$" (plist-get ctx :prev-line))
   (+ (plist-get ctx :prev-indentation) rjsx-mode-code-indent-offset))
@@ -4163,21 +4193,22 @@ CTX: the current indentatation context at point."
   "Concatenation with +."
   (member ?\+ (list (plist-get ctx :prev-char)
                     (plist-get ctx :next-char)))
-  (cond
-   ;; TODO(colin): checking this condition will move point.  Fix.
-   ((not (rjsx-mode-javascript-string-beginning
-          (plist-get ctx :pos) (plist-get ctx :reg-beg)))
-    0)
-   ((null (cdr (assoc "lineup-concats" rjsx-mode-indentation-params)))
-    (+ (current-indentation) rjsx-mode-code-indent-offset))
-   ((not (eq (plist-get ctx :curr-char) ?\+))
-    (current-column))
-   ((not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min)))
-    ;; TODO(colin): clean up this condition.
-    (goto-char (plist-get ctx :pos))
-    (looking-at "\\+[ \t\n]*")
-    (- (current-column) (length (match-string-no-properties 0))))
-   (t (current-column))))
+  (save-excursion
+    (cond
+     ;; TODO(colin): checking this condition will move point.  Fix.
+     ((not (rjsx-mode-javascript-string-beginning
+            (plist-get ctx :pos) (plist-get ctx :reg-beg)))
+      0)
+     ((null (cdr (assoc "lineup-concats" rjsx-mode-indentation-params)))
+      (+ (current-indentation) rjsx-mode-code-indent-offset))
+     ((not (eq (plist-get ctx :curr-char) ?\+))
+      (current-column))
+     ((not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min)))
+      ;; TODO(colin): clean up this condition.
+      (goto-char (plist-get ctx :pos))
+      (looking-at "\\+[ \t\n]*")
+      (- (current-column) (length (match-string-no-properties 0))))
+     (t (current-column)))))
 
 (def-indentation-rule
   "Chained function calls starting with `.`."
@@ -4388,36 +4419,6 @@ CTX: the current indentatation context at point."
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
-
-         ;; #446, #638, #800
-         ((and (member language '("javascript" "jsx"))
-               (or (string-match-p "[&|?:+-]$" prev-line)
-                   (string-match-p "^[&|?:+-]" curr-line))
-               (not (and (member language '("javascript" "jsx"))
-                         (string-match-p "]:" prev-line)))
-               (not (and (eq prev-char ?\:)
-                         (string-match-p "^\\(case\\|default\\)" prev-line)))
-               )
-          (when debug (message "I25 : ternary"))
-          (cond
-           ((not (funcall (if (member language '("javascript" "jsx"))
-                              'rjsx-mode-javascript-statement-beginning
-                            'rjsx-mode-block-statement-beginning)
-                          pos reg-beg))
-            )
-           ((null (cdr (assoc "lineup-ternary" rjsx-mode-indentation-params)))
-            (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-           (t
-            (setq offset (current-column))
-            ;;(message "%S %S" pos offset)
-            (when (and (member curr-char '(?\+ ?\- ?\& ?\| ?\? ?\:))
-                       (not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min)))) ; #743
-              (goto-char pos)
-              (looking-at "\\(||\\|&&\\|[&|?:+-]\\)[ \t\n]*")
-              (setq offset (- offset (length (match-string-no-properties 0)))))
-            )
-           ) ;cond
-          )
 
          ((and (member language '("javascript" "jsx"))
                (or (member ?\, chars)
