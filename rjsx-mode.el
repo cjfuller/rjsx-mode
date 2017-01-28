@@ -4155,6 +4155,60 @@ CTX: the current indentatation context at point."
   (plist-get ctx :prev-indentation))
 
 (def-indentation-rule
+  "Closing paren/bracket/brace indentation."
+  ;; TODO(colin): verify rule description
+  (member (plist-get ctx :curr-char) '(?\} ?\) ?\]))
+  ;; TODO(colin): split into multiple rules.
+  (save-excursion
+    (let ((ori (if (get-text-property (plist-get ctx :pos) 'block-side)
+                   (rjsx-mode-block-opening-paren-position
+                    (plist-get ctx :pos) (plist-get ctx :reg-beg))
+                 (rjsx-mode-part-opening-paren-position
+                  (plist-get ctx :pos) (plist-get ctx :reg-beg)))))
+      (cond
+       ((null ori)
+        (plist-get ctx :reg-col))
+       ;; TODO(colin): checking this condition will move point.  Fix.
+       ;; (consolidate with the next condition once we're sure we don't need the mutation)
+       ((and (goto-char ori)
+             (looking-back ")[ ]*" (point-min)) ;; TODO(colin): is looking-back needed?
+             (re-search-backward ")[ ]*" nil t)
+             (rjsx-mode-block-opening-paren (plist-get ctx :reg-beg)))
+        (back-to-indentation)
+        (current-indentation))
+       (t
+        (goto-char ori)
+        (back-to-indentation)
+        (current-indentation))))))
+
+(def-indentation-rule
+  "JSX within-element indentation."
+  ;; TODO(colin): verify rule description.
+  (and (member (plist-get ctx :language) '("jsx"))
+       (string= (plist-get ctx :options) "is-html"))
+  ;; TODO(colin): split into multiple rules.
+  (save-excursion
+    (cond
+     ((get-text-property (plist-get ctx :pos) 'tag-beg)
+      (rjsx-mode-markup-indentation (plist-get ctx :pos)))
+     ((and rjsx-mode-indentless-elements
+           (not (string= (plist-get ctx :language) "jsx"))
+           (null (get-text-property (plist-get ctx :pos) 'block-side))
+           (null (get-text-property (plist-get ctx :pos) 'part-side))
+           (and (null (get-text-property (plist-get ctx :pos) 'tag-beg))
+                (save-excursion
+                  (and (rjsx-mode-element-parent)
+                       (member (get-text-property (point) 'tag-name) rjsx-mode-indentless-elements))))
+           )
+      (rjsx-mode-hypothesize-unused)
+      0)
+     ((or (eq (length (plist-get ctx :curr-line)) 0)
+          (= rjsx-mode-indent-style 2)
+          (get-text-property (plist-get ctx :pos) 'tag-beg)
+          (get-text-property (plist-get ctx :pos) 'reg-beg))
+      (rjsx-mode-markup-indentation (plist-get ctx :pos))))))
+
+(def-indentation-rule
   "JSX within-tag indentation."
   ;; TODO(colin): verify rule description.
   (and (member (plist-get ctx :language) '("javascript" "jsx"))
@@ -4279,62 +4333,6 @@ CTX: the current indentatation context at point."
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
-
-         ((or (member language '("html" "xml"))
-              (and (member language '("jsx"))
-                   (string= options "is-html")))
-          (when debug (message "I10"))
-          (cond
-           ((get-text-property pos 'tag-beg)
-            (when debug (message "I10.1"))
-            (setq offset (rjsx-mode-markup-indentation pos))
-            )
-           ((and rjsx-mode-indentless-elements
-                 (not (string= language "jsx"))
-                 (null (get-text-property pos 'block-side))
-                 (null (get-text-property pos 'part-side))
-                 (and (null (get-text-property pos 'tag-beg))
-                      (save-excursion
-                        (and (rjsx-mode-element-parent)
-                             (member (get-text-property (point) 'tag-name) rjsx-mode-indentless-elements))))
-                 )
-            (when debug (message "I10.2"))
-            (setq offset nil))
-           ((or (eq (length curr-line) 0)
-                (= rjsx-mode-indent-style 2)
-                (get-text-property pos 'tag-beg)
-                (get-text-property pos 'reg-beg))
-            (when debug (message "I10.3"))
-            (setq offset (rjsx-mode-markup-indentation pos))
-            )
-           )
-          )
-         ((member curr-char '(?\} ?\) ?\]))
-          (when debug (message "I15"))
-          (let (ori)
-            (if (get-text-property pos 'block-side)
-                (setq ori (rjsx-mode-block-opening-paren-position pos reg-beg))
-              (setq ori (rjsx-mode-part-opening-paren-position pos reg-beg)))
-            (cond
-             ((null ori)
-              (setq offset reg-col))
-             ((and (goto-char ori)
-                   (looking-back ")[ ]*" (point-min)) ;; peut-on se passer du looking-back ?
-                   (re-search-backward ")[ ]*" nil t)
-                   (rjsx-mode-block-opening-paren reg-beg))
-              (back-to-indentation)
-              (setq offset (current-indentation))
-              )
-             (t
-              (goto-char ori)
-              (back-to-indentation)
-              (setq offset (current-indentation))
-              (when (get-text-property pos 'jsx-end)
-                (setq adjust nil))
-              ) ;t
-             ) ;cond
-            ) ;let
-          )
 
          ((and (member language '("javascript" "jsx"))
                (member ?\. chars)
