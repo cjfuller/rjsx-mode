@@ -4098,7 +4098,7 @@ CTX: the current context at the point being indented."
       0)))
 
 ;; Indentation helpers
-(defun rjsx-mode-indent-comment (ctx)
+(defun rjsx-mode-comment-indentation (ctx)
   "Find the indentation for a comment.
 CTX: the current indentatation context at point."
   (save-excursion
@@ -4149,7 +4149,7 @@ CTX: the current indentatation context at point."
 (def-indentation-rule
   "Comment indentation."
   (string= (plist-get ctx :token) "comment")
-  (rjsx-mode-indent-comment ctx))
+  (rjsx-mode-comment-indentation ctx))
 
 (def-indentation-rule
   "No offset at beginning of buffer."
@@ -4250,7 +4250,7 @@ CTX: the current indentatation context at point."
            (rjsx-mode-attr-indent-offset
             (setq offset (+ (current-column) rjsx-mode-attr-indent-offset)))
            ((looking-at-p (concat rjsx-mode-start-tag-regexp "[ ]*\n"))
-            (if (= (line-number-at-pos) (1- curr-line))
+            (if (= (line-number-at-pos) (1- curr-line-number))
                 (setq offset (+ (or prev-indentation 0) (or rjsx-mode-attr-indent-offset 4)))
               (setq offset (or prev-indentation 0))))
            ((rjsx-mode-attribute-next)
@@ -4558,6 +4558,29 @@ CTX: the current indentatation context at point."
       (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset))
       )
      )
+    offset))
+
+(defun rjsx-mode-markup-indentation (pos)
+  (let ((offset 0) beg ret depth-beg depth-pos)
+    (when (setq beg (rjsx-mode-markup-indentation-origin pos))
+      (when (and (setq depth-pos (get-text-property pos 'jsx-depth))
+                 (setq depth-beg (get-text-property beg 'jsx-depth))
+                 (progn
+                   (when (and (get-text-property pos 'jsx-beg)
+                              (not (get-text-property pos 'tag-beg)))
+                     (setq depth-pos (1- depth-pos)))
+                   t)
+                 (not (eq depth-beg depth-pos)))
+        (setq beg (rjsx-mode-jsx-depth-beginning-position pos)))
+      (cond
+       ((null (setq ret (rjsx-mode-element-is-opened beg pos)))
+        (setq offset (rjsx-mode-indentation-at-pos beg)))
+       ((eq ret t)
+        (setq offset (+ (rjsx-mode-indentation-at-pos beg) rjsx-mode-markup-indent-offset)))
+       (t
+        (setq offset ret))
+       ) ;cond
+      ) ;when beg
     offset))
 
 (defun rjsx-mode-javascript-indentation (pos initial-column language-offset language &optional limit)
@@ -8779,13 +8802,13 @@ Prompt user if TAG-NAME isn't provided."
       (setq sig2 (md5 (current-buffer)))
       (setq success (string= sig1 sig2))
       (setq out (concat (if success "ok" "ko") " : " (file-name-nondirectory file)))
-      (message out)
+      ;(message out)
       (setq err (concat (file-name-directory file) "_err." (file-name-nondirectory file)))
       (if success
           (when (file-readable-p err)
             (delete-file err))
         (write-file err)
-        (message "[%s]" (buffer-string))
+        ;(message "[%s]" (buffer-string))
         ) ;if
       out)))
 
