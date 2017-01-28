@@ -1,14 +1,16 @@
-web-mode.el [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](http://web-mode.org) 
+rjsx-mode.el
 =========
 
-web-mode.el is an emacs major mode for editing **web templates** aka HTML files embedding parts (CSS/JavaScript) and blocks (pre rendered by client/server side engines).
+rjsx-mode.el is an emacs major mode for editing react JSX (and javascript)
+files.  It's based off of [web-mode.el](http://web-mode.org), but
+slimmed down and refactored for editing just jsx files.  (web-mode.el is
+excellent for editing files with mixed languages, but I spend most of my web
+programming time in files that are jsx-only and wanted something easier to
+understand and modify for that usecase.)
 
-web-mode.el is compatible with many template engines: PHP, JSP, ASP, Django, Twig, Jinja, Mustache, ERB, FreeMarker, Velocity, Cheetah, Smarty, CTemplate, Mustache, Blade, ErlyDTL, Go Template, Dust.js, Google Closure (soy), React/JSX, Angularjs, ejs, Nunjucks, etc.
-
-More infos on http://web-mode.org/
-
-![ScreenShot](http://web-mode.org/web-mode.png?v=5)
-
-[![MELPA](http://melpa.org/packages/web-mode-badge.svg)](http://melpa.org/#/web-mode)
-
-[![MELPA Stable](http://stable.melpa.org/packages/web-mode-badge.svg)](http://stable.melpa.org/#/web-mode)
+The goal is for the indentation to follow
+the [Khan Academy style guidelines for jsx](https://github.com/Khan/style-guides/blob/master/style/react.md).
+The refactor from web-mode.el is still in progress, and there are still some
+minor indentation issues.  Notably: tags are over-indented following the close
+of a self-closing tag (`/>`) on a line by itself.  The tests reflect the
+desired style and as a result, there are currently some failures.
