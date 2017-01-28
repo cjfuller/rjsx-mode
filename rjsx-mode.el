@@ -4154,6 +4154,30 @@ CTX: the current indentatation context at point."
   nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
   (plist-get ctx :prev-indentation))
 
+(def-indentation-rule
+  "Indent after a line ending in = or =>."
+  (string-match-p "=[>]?$" (plist-get ctx :prev-line))
+  (+ (plist-get ctx :prev-indentation) rjsx-mode-code-indent-offset))
+
+(def-indentation-rule
+  "Concatenation with +."
+  (member ?\+ (list (plist-get ctx :prev-char)
+                    (plist-get ctx :next-char)))
+  (cond
+   ;; TODO(colin): checking this condition will move point.  Fix.
+   ((not (rjsx-mode-javascript-string-beginning
+          (plist-get ctx :pos) (plist-get ctx :reg-beg)))
+    0)
+   ((null (cdr (assoc "lineup-concats" rjsx-mode-indentation-params)))
+    (+ (current-indentation) rjsx-mode-code-indent-offset))
+   ((not (eq (plist-get ctx :curr-char) ?\+))
+    (current-column))
+   ((not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min)))
+    ;; TODO(colin): clean up this condition.
+    (goto-char (plist-get ctx :pos))
+    (looking-at "\\+[ \t\n]*")
+    (- (current-column) (length (match-string-no-properties 0))))
+   (t (current-column))))
 
 (def-indentation-rule
   "Chained function calls starting with `.`."
@@ -4364,35 +4388,6 @@ CTX: the current indentatation context at point."
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
-
-         ((and (member language '("javascript" "jsx"))
-               (member ?\+ chars))
-          (when debug (message "I23"))
-          ;;(message "js-concat")
-          (cond
-           ((not (rjsx-mode-javascript-string-beginning pos reg-beg))
-            )
-           ((null (cdr (assoc "lineup-concats" rjsx-mode-indentation-params)))
-            (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-           ((not (eq curr-char ?\+))
-            (setq offset (current-column)))
-           (t
-            (setq offset (current-column))
-            (when (not (looking-back "\\(^[ \t]+\\|if[ ]*[(]?\\)" (point-min)))
-              (goto-char pos)
-              (looking-at "\\+[ \t\n]*")
-              (setq offset (- offset (length (match-string-no-properties 0)))))
-            )
-           )
-          )
-
-         ;; #579 , #742
-         ((and (member language '("javascript" "jsx"))
-               (string-match-p "=[>]?$" prev-line))
-          (when debug (message "I24"))
-          (setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
-          ;;(message "ici%S" offset)
-          )
 
          ;; #446, #638, #800
          ((and (member language '("javascript" "jsx"))
