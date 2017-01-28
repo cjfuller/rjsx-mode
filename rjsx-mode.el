@@ -12,10 +12,10 @@
 ;;---- GROUPS ------------------------------------------------------------------
 
 (defgroup rjsx-mode nil
-  "Major mode for editing web templates"
+  "Major mode for editing react jsx files."
   :group 'languages
   :prefix "web-"
-  :link '(url-link :tag "Repository" "https://github.com/cjfuller/web-mode"))
+  :link '(url-link :tag "Repository" "https://github.com/cjfuller/rjsx-mode"))
 
 (defgroup rjsx-mode-faces nil
   "Faces for syntax highlighting."
@@ -564,6 +564,8 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
 
 (defvar font-lock-beg)
 (defvar font-lock-end)
+
+(defvar rjsx-mode-debug nil)
 
 (defvar rjsx-mode-auto-pairs nil)
 (defvar rjsx-mode-block-regexp nil)
@@ -1253,6 +1255,12 @@ another auto-completion with different ac-sources")
   )
 
 ;;---- DEFUNS ------------------------------------------------------------------
+(defun rjsx-mode-hypothesize-unused ()
+  "Mark code that I suspect is unused.
+With debug off, it logs a message; with debug on, it errors to get a traceback."
+  (if rjsx-mode-debug
+      (error "Suspected dead code in use")
+    (message "Warning: suspected dead code is in use; set rjsx-mode-debug to t to see a traceback.")))
 
 (defun rjsx-mode-scan-region (beg end &optional content-type)
   "Identify nodes/parts/blocks and syntactic symbols (strings/comments)."
@@ -3839,7 +3847,7 @@ An indenation rule consists of a pair with car a predicate that takes a context
 and returns whether the rule applies, and a cdr a function that takes a
 context and returns the desired indentation.")
 
-(defvar rjsx-mode-indent-debug nil
+(defvar rjsx-mode-indent-debug rjsx-mode-debug
   "If t, print debugging messages when applying indentation.")
 
 (defmacro def-indentation-rule (name cond-form &rest body)
@@ -4147,6 +4155,59 @@ CTX: the current indentatation context at point."
   (plist-get ctx :prev-indentation))
 
 (def-indentation-rule
+  "JSX within-tag indentation."
+  ;; TODO(colin): verify rule description.
+  (and (member (plist-get ctx :language) '("javascript" "jsx"))
+       (get-text-property (plist-get ctx :pos) 'tag-type)
+       (not (get-text-property (plist-get ctx :pos) 'tag-beg))
+       (or (not (string= (plist-get ctx :language) "jsx"))
+           (string= (plist-get ctx :options) "is-html")))
+  (save-excursion
+    ;; TODO(colin): split into multiple rules
+    (cond
+     ((and (get-text-property (plist-get ctx :pos) 'tag-attr)
+           (get-text-property (1- (plist-get ctx :pos)) 'tag-attr)
+           (rjsx-mode-attribute-beginning))
+      (cond
+       ((eq (logand (get-text-property (point) 'tag-attr-beg) 8) 8)
+        0)
+       ((and rjsx-mode-attr-value-indent-offset (rjsx-mode-tag-beginning))
+        (+ (current-column) rjsx-mode-attr-value-indent-offset))
+       (t
+        (rjsx-mode-dom-rsf "=[ ]*[\"']?" (plist-get ctx :pos))
+        (current-column))
+       ) ;cond
+      )
+     ;; TODO(colin): the next line (rjsx-mode-tag-beginning) may change the
+     ;; point and therefore checking this condition may affect others.  Fix.
+     ((not (rjsx-mode-tag-beginning))
+      0)
+     ((string-match-p "^/?>" (plist-get ctx :curr-line))
+      (- (or (plist-get ctx :prev-indentation) 0) (or rjsx-mode-attr-indent-offset 4)))
+     (rjsx-mode-attr-indent-offset
+      (+ (current-column) rjsx-mode-attr-indent-offset))
+     ((looking-at-p (concat rjsx-mode-start-tag-regexp "[ ]*\n"))
+      (if (= (line-number-at-pos) (1- (plist-get ctx :curr-line-number)))
+          (+ (or (plist-get ctx :prev-indentation) 0)
+             (or rjsx-mode-attr-indent-offset 4))
+        (or (plist-get ctx :prev-indentation) 0)))
+     ((rjsx-mode-attribute-next)
+      (current-column))
+     ) ;cond
+    )
+  )
+
+(def-indentation-rule
+  "JSX closing } indentation."
+  ;; TODO(colin): verify rule description.
+  (and (equal (plist-get ctx :language) "jsx")
+       (eq (plist-get ctx :curr-char) ?\})
+       (get-text-property (plist-get ctx :pos) 'jsx-end))
+  (save-excursion
+    (rjsx-mode-go (1- (plist-get ctx :reg-beg)))
+    (current-column)))
+
+(def-indentation-rule
   "Tag indentation: self-closing??"
   ;; TODO(colin): is this a correct rule label?
   (and (get-text-property (plist-get ctx :pos) 'tag-beg)
@@ -4216,55 +4277,8 @@ CTX: the current indentatation context at point."
 
         (cond
          ((rjsx-mode-any-rules-apply-p ctx)
-          (setq offset (rjsx-mode-call-matching-rule ctx)))
-
-         ((and (member language '("jsx"))
-               (eq curr-char ?\})
-               (get-text-property pos 'jsx-end))
-          (when debug (message "I08"))
-          (rjsx-mode-go (1- reg-beg))
-          (setq reg-col nil)
-          (setq offset (current-column)))
-
-         ((and (member language '("html" "xml" "javascript" "jsx"))
-               (get-text-property pos 'tag-type)
-               (not (get-text-property pos 'tag-beg))
-               (or (not (string= language "jsx"))
-                   (string= options "is-html")))
-          (when debug (message "I09"))
-          (cond
-           ((and (get-text-property pos 'tag-attr)
-                 (get-text-property (1- pos) 'tag-attr)
-                 (rjsx-mode-attribute-beginning)
-                 ;;(progn (message "%S" pos) t)
-                 )
-            ;;(message "la")
-            (cond
-             ((eq (logand (get-text-property (point) 'tag-attr-beg) 8) 8)
-              (setq offset nil))
-             ((and rjsx-mode-attr-value-indent-offset (rjsx-mode-tag-beginning))
-              (setq offset (+ (current-column) rjsx-mode-attr-value-indent-offset)))
-             (t
-              ;;(message "ici")
-              (rjsx-mode-dom-rsf "=[ ]*[\"']?" pos)
-              (setq offset (current-column)))
-             ) ;cond
-
-            )
-           ((not (rjsx-mode-tag-beginning))
-            )
-           ((string-match-p "^/?>" curr-line)
-            (setq offset (- (or prev-indentation 0) (or rjsx-mode-attr-indent-offset 4))))
-           (rjsx-mode-attr-indent-offset
-            (setq offset (+ (current-column) rjsx-mode-attr-indent-offset)))
-           ((looking-at-p (concat rjsx-mode-start-tag-regexp "[ ]*\n"))
-            (if (= (line-number-at-pos) (1- curr-line-number))
-                (setq offset (+ (or prev-indentation 0) (or rjsx-mode-attr-indent-offset 4)))
-              (setq offset (or prev-indentation 0))))
-           ((rjsx-mode-attribute-next)
-            (setq offset (current-column)))
-           ) ;cond
-          )
+          (setq offset (rjsx-mode-call-matching-rule ctx))
+          (setq reg-col nil))
 
          ((or (member language '("html" "xml"))
               (and (member language '("jsx"))

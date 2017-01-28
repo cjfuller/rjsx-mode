@@ -14,19 +14,7 @@ Relay.createContainer(Story, {
         showComments: false,
     },
     fragments: {
-        story: (variables) => Relay.QL`
-            fragment on Story {
-                comments(first: $numCommentsToShow) @include(if: $showComments) {
-                    edges {
-                        node {
-                            author { name },
-                            id,
-                            text,
-                        },
-                    },
-                },
-            }
-        `,
+        story: (variables) => null,
     }
 });
 
