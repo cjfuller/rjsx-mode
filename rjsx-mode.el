@@ -4147,6 +4147,33 @@ CTX: the current indentatation context at point."
   (plist-get ctx :prev-indentation))
 
 (def-indentation-rule
+  "Tag indentation: self-closing??"
+  ;; TODO(colin): is this a correct rule label?
+  (and (get-text-property (plist-get ctx :pos) 'tag-beg)
+       (eq (get-text-property (plist-get ctx :pos) 'tag-type) 'end))
+  (save-excursion
+    (rjsx-mode-tag-match)
+    (current-indentation)))
+
+(def-indentation-rule
+  "Block indentation: closing delimiter??"
+  ;; TODO(colin): is this correct that this deals with the closing delimiter?
+  (eq (get-text-property (plist-get ctx :pos) 'block-token) 'delimiter-end)
+  (save-excursion
+    (rjsx-mode-block-beginning)
+    (if (< (current-column) (current-indentation)) (current-indentation) (current-column))))
+
+(def-indentation-rule
+  "Block indentation."
+  ;; TODO(colin): what feature of a block does this deal with exactly?
+  (and (get-text-property (plist-get ctx :pos) 'block-beg)
+       (or (rjsx-mode-block-close-p (plist-get ctx :pos))
+           (rjsx-mode-block-inside-p (plist-get ctx :pos))))
+  (save-excursion
+    (rjsx-mode-block-match)
+    (current-indentation)))
+
+(def-indentation-rule
   "Comment indentation."
   (string= (plist-get ctx :token) "comment")
   (rjsx-mode-comment-indentation ctx))
@@ -4190,25 +4217,6 @@ CTX: the current indentatation context at point."
         (cond
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx)))
-
-         ((and (get-text-property pos 'block-beg)
-               (or (rjsx-mode-block-is-close pos)
-                   (rjsx-mode-block-is-inside pos)))
-          (when debug (message "I05"))
-          (when (rjsx-mode-block-match)
-            (setq offset (current-indentation))))
-
-         ((eq (get-text-property pos 'block-token) 'delimiter-end)
-          (when debug (message "I06"))
-          (when (rjsx-mode-block-beginning)
-            (setq reg-col (current-indentation))
-            (setq offset (current-column))))
-
-         ((and (get-text-property pos 'tag-beg)
-               (eq (get-text-property pos 'tag-type) 'end))
-          (when debug (message "I07"))
-          (when (rjsx-mode-tag-match)
-            (setq offset (current-indentation))))
 
          ((and (member language '("jsx"))
                (eq curr-char ?\})
@@ -5689,17 +5697,17 @@ Prompt user if TAG-NAME isn't provided."
                  (member (get-text-property pos 'part-token) '(comment string))))))
 
 ;; NOTE: we look at the firt one
-(defun rjsx-mode-block-is-open (&optional pos)
+(defun rjsx-mode-block-open-p (&optional pos)
   (unless pos (setq pos (point))))
 
 ;; NOTE: we look at the last one
-(defun rjsx-mode-block-is-close (&optional pos)
+(defun rjsx-mode-block-close-p (&optional pos)
   (unless pos (setq pos (point)))
   (and (get-text-property pos 'block-side)
        (eq (caar (rjsx-mode-block-controls-get pos)) 'close)))
 
 ;; NOTE: we look at the first one
-(defun rjsx-mode-block-is-inside (&optional pos)
+(defun rjsx-mode-block-inside-p (&optional pos)
   (unless pos (setq pos (point)))
   (and (get-text-property pos 'block-side)
        (eq (caar (rjsx-mode-block-controls-get pos)) 'inside)))

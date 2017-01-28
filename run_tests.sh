@@ -4,6 +4,8 @@ set -e
 
 emacs --batch -l ~/.emacs.d/init.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
 
+set +e
+
 all_tests=`ls tests/* | grep -v "_err"`
 for test in $all_tests
 do
