@@ -4154,6 +4154,37 @@ CTX: the current indentatation context at point."
   nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
   (plist-get ctx :prev-indentation))
 
+
+(def-indentation-rule
+  "Chained function calls starting with `.`."
+  (and (member ?\. (list (plist-get ctx :curr-char) (plist-get ctx :prev-char)))
+       (not (string-match-p "^\\.\\.\\." (plist-get ctx :curr-line))))
+  (save-excursion
+    (let ((pair (rjsx-mode-javascript-calls-beginning-position
+                 (plist-get ctx :pos)
+                 (plist-get ctx :reg-beg))))
+      (if pair
+          (progn
+            (goto-char (car pair))
+            (cond
+             ((cdr (assoc "lineup-calls" rjsx-mode-indentation-params))
+              (if (cdr pair)
+                  (let ((offset 0))
+                    ;; TODO(colin): simplify this section
+                    (goto-char (cdr pair))
+                    (setq offset (current-column))
+                    (looking-at "\\.\\([ \t\n]*\\)")
+                    (setq offset (- offset (length (match-string-no-properties 1))))
+                    (unless (eq (plist-get ctx :curr-char) ?\.) (setq offset (1+ offset)))
+                    offset)
+                ;; TODO(colin): perhaps this should be done in rjsx-mode-javascript-calls-beginning-position.
+                (skip-chars-forward " \t\n")
+                (+ (current-indentation) rjsx-mode-code-indent-offset))
+              )
+             (t (+ (current-indentation) rjsx-mode-code-indent-offset))))
+        0))))
+
+
 (def-indentation-rule
   "Closing paren/bracket/brace indentation."
   ;; TODO(colin): verify rule description
@@ -4333,41 +4364,6 @@ CTX: the current indentatation context at point."
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
-
-         ((and (member language '("javascript" "jsx"))
-               (member ?\. chars)
-               (not (string-match-p "^\\.\\.\\." curr-line)))
-          (when debug (message "I22"))
-          (let (pair)
-            (setq pair (rjsx-mode-javascript-calls-beginning-position pos reg-beg))
-            ;;(message "%S" pair)
-            (when pair
-              (goto-char (car pair))
-              ;;(message "%S %S" (point) pair)
-              (cond
-               ((cdr (assoc "lineup-calls" rjsx-mode-indentation-params))
-                ;;(message "ici")
-                ;;(search-forward ".")
-                (if (cdr pair)
-                    (progn
-                      (goto-char (cdr pair))
-                      (setq offset (current-column))
-                      (looking-at "\\.\\([ \t\n]*\\)")
-                      (setq offset (- offset (length (match-string-no-properties 1))))
-                      (unless (eq curr-char ?\.) (setq offset (1+ offset)))
-                      ) ;progn
-                  ;; TODO: cela devrait etre fait dans rjsx-mode-javascript-calls-beginning-position
-                  (skip-chars-forward " \t\n")
-                  (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset))
-                  ) ;if
-                )
-               (t
-                (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset))
-                ) ;t
-               ) ;cond
-              ) ;when
-            ) ;let
-          )
 
          ((and (member language '("javascript" "jsx"))
                (member ?\+ chars))
