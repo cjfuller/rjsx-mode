@@ -2,7 +2,7 @@
 
 set -e
 
-emacs --batch -l ./seq.el/seq-24.el -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
+emacs --batch -l ./seq.el/seq-24.el -l ./seq.el/seq.el -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
 
 set +e
 exit_status=0
