@@ -4159,6 +4159,28 @@ CTX: the current indentatation context at point."
 
 
 (def-indentation-rule
+  "Indent after a closing paren."
+  (eq (plist-get ctx :prev-char) ?\))
+  (let ((block-opening-indentation (rjsx-mode-part-is-opener
+                                    (plist-get ctx :prev-pos)
+                                    (plist-get ctx :reg-beg))))
+    (if block-opening-indentation
+        (+ block-opening-indentation rjsx-mode-code-indent-offset)
+      ;; TODO(colin): rjsx-mode-javascript-indentation should perhaps take the
+      ;; context?
+      (car (rjsx-mode-javascript-indentation
+            (plist-get ctx :pos)
+            (plist-get ctx :reg-col)
+            (plist-get ctx :curr-indentation)
+            (plist-get ctx :language)
+            (plist-get ctx :reg-beg))))))
+
+(def-indentation-rule
+  "Indent after a bare else."
+  (string-match-p "^else$" (plist-get ctx :prev-line))
+  (+ (plist-get ctx :prev-indentation) rjsx-mode-code-indent-offset))
+
+(def-indentation-rule
   "Indent at the start of an array, argument list, or array element."
   (or (member ?\, (list (plist-get ctx :prev-char) (plist-get ctx :next-char)))
       (member (plist-get ctx :prev-char) '(?\( ?\[)))
@@ -4350,6 +4372,7 @@ CTX: the current indentatation context at point."
      ;; TODO(colin): the next line (rjsx-mode-tag-beginning) may change the
      ;; point and therefore checking this condition may affect others.  Fix.
      ((not (rjsx-mode-tag-beginning))
+      (rjsx-mode-hypothesize-unused)
       0)
      ((string-match-p "^/?>" (plist-get ctx :curr-line))
       (- (or (plist-get ctx :prev-indentation) 0) (or rjsx-mode-attr-indent-offset 4)))
@@ -4449,32 +4472,6 @@ CTX: the current indentatation context at point."
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
 
-         ((and (member language '("javascript" "jsx"))
-               (or (eq prev-char ?\))
-                   (string-match-p "^else$" prev-line))
-               )
-          (when debug (message "I27"))
-          ;;(message "js-ici")
-          (cond
-           ((string-match-p "^else$" prev-line)
-            (setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
-            )
-           ((setq tmp (rjsx-mode-part-is-opener prev-pos reg-beg))
-            ;;(message "is-opener")
-            (setq offset (+ tmp rjsx-mode-code-indent-offset))
-            ;;(setq offset (+ prev-indentation rjsx-mode-code-indent-offset))
-            )
-           (t
-            (setq offset
-                  (car (rjsx-mode-javascript-indentation pos
-                                                        reg-col
-                                                        curr-indentation
-                                                        language
-                                                        reg-beg)))
-            ) ;t
-           ) ;cond
-
-          )
          ((member ?\, chars)
           (when debug (message "I30"))
           (cond
