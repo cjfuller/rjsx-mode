@@ -4072,7 +4072,8 @@ CTX: the current indentatation context at point."
   ))
 
 
-;; Indentation rules are listed in reverse priority order.
+;; Indentation rules are defined in reverse priority order.
+;; (Note that the order in which they are defined is what determines precedence.)
 ;; TODO(colin): many of these should be split into smaller rules that do just
 ;; one thing.
 (def-rjsx-mode-indentation-rule
@@ -4253,6 +4254,14 @@ CTX: the current indentatation context at point."
              (rjsx-mode-block-opening-paren (plist-get ctx :reg-beg)))
         (back-to-indentation)
         (current-indentation))
+       ;; TODO(colin): checking this condition will move point.  Fix.
+       ((not (and (goto-char ori)
+                  (looking-at-p "\\(?:(\\|\\[\\|{\\)$")))
+        ;; Where there's more written after the delimiter on the same line, the
+        ;; contents will be aligned internal to the delimiter, so we want to
+        ;; put the closing delimiter at the same indent as the opening
+        ;; delimiter, rather than moving back one indentation level.
+        (current-column))
        (t
         (goto-char ori)
         (back-to-indentation)
