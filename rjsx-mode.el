@@ -4090,12 +4090,6 @@ it doesn't change point."
             :token token)
       )))
 
-(defun rjsx-mode-any-rules-apply-p (ctx)
-  "Do any of the indentation rules apply to current context?
-CTX: the current context at the point being indented."
-  (let ((conditions (seq-map #'car rjsx-mode-indentation-rules)))
-    (seq-some (lambda (condition) (funcall condition ctx)) conditions)))
-
 (defun rjsx-mode-call-matching-rule (ctx)
   "Call the first matching indentation rule.
 CTX: the current context at the point being indented."
@@ -4157,23 +4151,29 @@ CTX: the current indentatation context at point."
   nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
   (plist-get ctx :prev-indentation))
 
+(def-indentation-rule
+  "Javascript indentation."
+  t
+  ;; TODO(colin): split up the javascript indentation function.
+  ;; TODO(colin): the javascript indentation function should perhaps take the
+  ;; context?
+  (car (rjsx-mode-javascript-indentation
+        (plist-get ctx :pos)
+        (plist-get ctx :reg-col)
+        (plist-get ctx :curr-indentation)
+        (plist-get ctx :language)
+        (plist-get ctx :reg-beg))))
 
 (def-indentation-rule
-  "Indent after a closing paren."
-  (eq (plist-get ctx :prev-char) ?\))
-  (let ((block-opening-indentation (rjsx-mode-part-is-opener
-                                    (plist-get ctx :prev-pos)
-                                    (plist-get ctx :reg-beg))))
-    (if block-opening-indentation
-        (+ block-opening-indentation rjsx-mode-code-indent-offset)
-      ;; TODO(colin): rjsx-mode-javascript-indentation should perhaps take the
-      ;; context?
-      (car (rjsx-mode-javascript-indentation
-            (plist-get ctx :pos)
-            (plist-get ctx :reg-col)
-            (plist-get ctx :curr-indentation)
-            (plist-get ctx :language)
-            (plist-get ctx :reg-beg))))))
+  "Indent after a closing paren at a block opening."
+  (and (eq (plist-get ctx :prev-char) ?\))
+       (rjsx-mode-part-is-opener (plist-get ctx :prev-pos)
+                                 (plist-get ctx :reg-beg)))
+  (+
+   (rjsx-mode-part-is-opener
+    (plist-get ctx :prev-pos)
+    (plist-get ctx :reg-beg))
+   rjsx-mode-code-indent-offset))
 
 (def-indentation-rule
   "Indent after a bare else."
@@ -4440,74 +4440,20 @@ CTX: the current indentatation context at point."
   "Calculate and apply intendation to the line at point."
   (rjsx-mode-propertize)
 
-  (let ((offset nil)
-        (char nil)
-        (debug nil)
-        (inhibit-modification-hooks t)
-        (adjust t))
+  (let ((char nil)
+        (ctx (save-excursion
+               (back-to-indentation)
+               (rjsx-mode-point-context (point)))))
 
-    (save-excursion
-      (back-to-indentation)
-      (setq char (char-after))
-      (let* ((pos (point))
-             (ctx (rjsx-mode-point-context pos))
-             (curr-char (plist-get ctx :curr-char))
-             (curr-indentation (plist-get ctx :curr-indentation))
-             (curr-line (plist-get ctx :curr-line))
-             (curr-line-number (plist-get ctx :curr-line-number))
-             (language (plist-get ctx :language))
-             (prev-char (plist-get ctx :prev-char))
-             (prev-indentation (plist-get ctx :prev-indentation))
-             (prev-line (plist-get ctx :prev-line))
-             (prev-pos (plist-get ctx :prev-pos))
-             (reg-beg (plist-get ctx :reg-beg))
-             (reg-col (plist-get ctx :reg-col))
-             (token (plist-get ctx :token))
-             (options (plist-get ctx :options))
-             (chars (list curr-char prev-char))
-             (tmp nil))
-
-        (cond
-         ((rjsx-mode-any-rules-apply-p ctx)
-          (setq offset (rjsx-mode-call-matching-rule ctx))
-          (setq reg-col nil))
-
-         ((member language '("javascript" "jsx"))
-          (when debug (message "I32 : javascript-indentation"))
-          ;;(message "js-indent")
-          (setq offset (car (rjsx-mode-javascript-indentation pos
-                                                             reg-col
-                                                             curr-indentation
-                                                             language
-                                                             reg-beg))))
-
-         (t
-          (when debug (message "I33 : bracket-indentation"))
-          (setq offset (car (rjsx-mode-bracket-indentation pos
-                                                          reg-col
-                                                          curr-indentation
-                                                          language
-                                                          reg-beg))))
-
-         ) ;cond
-
-        (when (and offset reg-col adjust (< offset reg-col)) (setq offset reg-col))
-
-        ) ;let
-      ) ;save-excursion
-
-    (when offset
-      ;;(message "offset=%S" offset)
-      (let ((diff (- (current-column) (current-indentation))))
-        (when (not (= offset (current-indentation)))
-          (setq rjsx-mode-change-beg (line-beginning-position)
-                rjsx-mode-change-end (+ rjsx-mode-change-beg offset)))
-        (setq offset (max 0 offset))
-        (indent-line-to offset)
-        (if (> diff 0) (move-to-column (+ (current-column) diff)))
-        ) ;let
-      ) ;when
-    ))
+    (let ((offset (rjsx-mode-call-matching-rule ctx))
+          (diff (- (current-column) (current-indentation))))
+      (when (not (= offset (current-indentation)))
+        ;; TODO(colin): what is this doing?
+        (setq rjsx-mode-change-beg (line-beginning-position)
+              rjsx-mode-change-end (+ rjsx-mode-change-beg offset)))
+      (setq offset (max 0 offset))
+      (indent-line-to offset)
+      (if (> diff 0) (move-to-column (+ (current-column) diff))))))
 
 (defun rjsx-mode-bracket-level (pos limit)
   (save-excursion
