@@ -142,11 +142,6 @@ See rjsx-mode-block-face."
   :type 'boolean
   :group 'rjsx-mode)
 
-(defcustom rjsx-mode-enable-comment-interpolation t
-  "Enable highlight of keywords like FIXME, TODO, etc. in comments."
-  :type 'list
-  :group 'rjsx-mode)
-
 (defcustom rjsx-mode-enable-string-interpolation t
   "Enable string interpolation fontification."
   :type 'boolean
@@ -2966,9 +2961,7 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
           name (get-text-property beg 'tag-name))
     (cond
      ((eq type 'comment)
-      (put-text-property beg end 'font-lock-face 'rjsx-mode-comment-face)
-      (when (and rjsx-mode-enable-comment-interpolation (> (- end beg) 5))
-        (rjsx-mode-interpolate-comment beg end nil)))
+      (put-text-property beg end 'font-lock-face 'rjsx-mode-comment-face))
      (name
       (setq face (cond
                   ((and rjsx-mode-enable-element-tag-fontification
@@ -3116,11 +3109,6 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
               (rjsx-mode-fontify-region beg end keywords)
             ))
 ;;          (message "%S %c %S beg=%S end=%S" rjsx-mode-enable-string-interpolation char rjsx-mode-engine beg end)
-          (when (and rjsx-mode-enable-comment-interpolation
-                     (eq token-type 'comment)
-                     (> (- end beg) 3))
-            (rjsx-mode-interpolate-comment beg end t)
-            ) ;when
           ) ;when beg end
         ) ;while continue
       ) ;when keywords
@@ -3196,9 +3184,6 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
               (when (and rjsx-mode-enable-string-interpolation
                          (member content-type '("javascript" "jsx")))
                 (rjsx-mode-interpolate-javascript-string beg end)))
-             ((eq token-type 'comment)
-              (when rjsx-mode-enable-comment-interpolation
-                (rjsx-mode-interpolate-comment beg end t)))
              ) ;cond
             ) ;t
            ) ;cond
@@ -3347,17 +3332,6 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
     (goto-char (1+ beg))
     (setq end (1- end))
     ))
-
-(defun rjsx-mode-interpolate-comment (beg end block-side)
-  (save-excursion
-    (let ((regexp (concat "\\_<\\(" rjsx-mode-comment-keywords "\\)\\_>")))
-      (goto-char beg)
-      (while (re-search-forward regexp end t)
-        (font-lock-prepend-text-property (match-beginning 1) (match-end 1)
-                                         'font-lock-face
-                                         'rjsx-mode-comment-keyword-face)
-        ) ;while
-      )))
 
 (defun rjsx-mode-fill-paragraph (&optional justify)
   (save-excursion
