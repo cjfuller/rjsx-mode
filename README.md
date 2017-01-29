@@ -1,6 +1,5 @@
 # rjsx-mode.el
-
-[![Build Status](https://secure.travis-ci.org/cjfuller/rjsx-mode.png)](https://travis-ci.org/cjfuller/rjsx-mode)
+[![Build Status](https://travis-ci.org/cjfuller/rjsx-mode.svg?branch=master)](https://travis-ci.org/cjfuller/rjsx-mode)
 
 rjsx-mode.el is an emacs major mode for editing react JSX (and javascript)
 files.  It's based off of [web-mode.el](http://web-mode.org), but
