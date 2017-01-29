@@ -8661,18 +8661,6 @@ Prompt user if TAG-NAME isn't provided."
     )
   (rjsx-mode-buffer-highlight))
 
-(defun rjsx-mode-on-engine-setted ()
-  nil ;; TODO(colin): remove
-    )
-
-(defun rjsx-mode-detect-engine ()
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward "-\\*- engine:[ ]*\\([[:alnum:]-]+\\)[ ]*-\\*-" rjsx-mode-chunk-length t)
-      (setq rjsx-mode-minor-engine (match-string-no-properties 1))
-      (setq rjsx-mode-engine (rjsx-mode-engine-canonical-name rjsx-mode-minor-engine)))
-    rjsx-mode-minor-engine))
-
 (defun rjsx-mode-guess-engine-and-content-type ()
   (let (buff-name elt found)
 
