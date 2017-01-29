@@ -2,7 +2,7 @@
 
 set -e
 
-emacs --batch -l ~/.emacs.d/init.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
+emacs --batch -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
 
 set +e
 
