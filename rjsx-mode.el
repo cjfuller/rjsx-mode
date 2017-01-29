@@ -4234,7 +4234,6 @@ CTX: the current indentatation context at point."
        ((null ori)
         (plist-get ctx :reg-col))
        ;; TODO(colin): checking this condition will move point.  Fix.
-       ;; (consolidate with the next condition once we're sure we don't need the mutation)
        ((and (goto-char ori)
              (looking-back ")[ ]*" (point-min)) ;; TODO(colin): is looking-back needed?
              (re-search-backward ")[ ]*" nil t)

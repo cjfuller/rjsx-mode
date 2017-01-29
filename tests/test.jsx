@@ -153,9 +153,11 @@ Landing = React.createClass({
     render: function() {
         return (
             <ul>
-                { for(e in list){
-                      console.log("not aligned");
-                  }}
+                {
+                    for(e in list) {
+                        console.log("not aligned");
+                    }
+                }
             </ul>
         );
     }
