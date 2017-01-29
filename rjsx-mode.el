@@ -4071,6 +4071,7 @@ CTX: the current indentatation context at point."
       )
   ))
 
+
 ;; Indentation rules are listed in reverse priority order.
 ;; TODO(colin): many of these should be split into smaller rules that do just
 ;; one thing.
@@ -4133,6 +4134,18 @@ CTX: the current indentatation context at point."
         (goto-char (plist-get ctx :pos))
         (looking-at ",[ \t\n]*")
         (- initial-offset (length (match-string-no-properties 0))))))))
+
+(def-rjsx-mode-indentation-rule
+  "Indent multiple assignments separated by , and newline."
+  (string-match-p "=[^\\[({]+,$" (plist-get ctx :prev-line))
+  ;; Kewords, like const, let, var, export, default might be on the
+  ;; previous line, so we need to skip those to find the corect
+  ;; indenation level.
+  (save-excursion
+    (forward-line -1)
+    (back-to-indentation)
+    (looking-at (concat "\\(\\(?:" rjsx-mode-javascript-keywords "[ ]+\\)*\\).*,$"))
+    (+ (current-indentation) (length (match-string-no-properties 1)))))
 
 (def-rjsx-mode-indentation-rule
   "Indent after a line ending in an operator."
