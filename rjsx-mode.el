@@ -1003,7 +1003,6 @@ another auto-completion with different ac-sources")
     (define-key map [menu-bar wm elt elt-van] '(menu-item "Vanish" rjsx-mode-element-vanish))
     (define-key map [menu-bar wm elt elt-exc] '(menu-item "Transpose" rjsx-mode-element-transpose))
     (define-key map [menu-bar wm elt elt-sel] '(menu-item "Select" rjsx-mode-element-select))
-    (define-key map [menu-bar wm elt elt-ren] '(menu-item "Rename" rjsx-mode-element-rename))
     (define-key map [menu-bar wm elt elt-pre] '(menu-item "Previous" rjsx-mode-element-previous))
     (define-key map [menu-bar wm elt elt-par] '(menu-item "Parent" rjsx-mode-element-parent))
     (define-key map [menu-bar wm elt elt-nex] '(menu-item "Next" rjsx-mode-element-next))
@@ -1065,7 +1064,6 @@ another auto-completion with different ac-sources")
     (define-key map (kbd "C-c C-e m") 'rjsx-mode-element-mute-blanks)
     (define-key map (kbd "C-c C-e n") 'rjsx-mode-element-next)
     (define-key map (kbd "C-c C-e p") 'rjsx-mode-element-previous)
-    (define-key map (kbd "C-c C-e r") 'rjsx-mode-element-rename)
     (define-key map (kbd "C-c C-e s") 'rjsx-mode-element-select)
     (define-key map (kbd "C-c C-e t") 'rjsx-mode-element-transpose)
     (define-key map (kbd "C-c C-e u") 'rjsx-mode-element-parent)
@@ -5455,26 +5453,6 @@ Prompt user if TAG-NAME isn't provided."
       )
      ) ;cond
     ))
-
-(defun rjsx-mode-element-rename (&optional tag-name)
-  "Rename the current html element."
-  (interactive)
-  (save-excursion
-    (let (pos)
-      (unless tag-name (setq tag-name (read-from-minibuffer "New tag name? ")))
-      (when (and (> (length tag-name) 0)
-                 (rjsx-mode-element-beginning)
-                 (looking-at "<\\([[:alnum:]]+\\(:?[-][[:alpha:]]+\\)?\\)"))
-        (setq pos (point))
-        (unless (rjsx-mode-element-is-void)
-            (save-match-data
-              (rjsx-mode-tag-match)
-              (if (looking-at "</[ ]*\\([[:alnum:]]+\\(:?[-][[:alpha:]]+\\)?\\)")
-                  (replace-match (concat "</" tag-name))
-                )))
-        (goto-char pos)
-        (replace-match (concat "<" tag-name))
-        ))))
 
 (defun rjsx-mode-current-trimmed-line ()
   (rjsx-mode-trim (buffer-substring-no-properties
