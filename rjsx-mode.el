@@ -3785,7 +3785,7 @@ context and returns the desired indentation.")
 (defvar rjsx-mode-indent-debug rjsx-mode-debug
   "If t, print debugging messages when applying indentation.")
 
-(defmacro def-indentation-rule (name cond-form &rest body)
+(defmacro def-rjsx-mode-indentation-rule (name cond-form &rest body)
   "Define an indenation rule.
 NAME: the name of the rule (for documentation and debugging).
 COND-FORM: a condition that determines whether the rule applies.  It can
@@ -4081,12 +4081,12 @@ CTX: the current indentatation context at point."
 ;; Indentation rules are listed in reverse priority order.
 ;; TODO(colin): many of these should be split into smaller rules that do just
 ;; one thing.
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Default: indent the same as the last line."
   nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
   (plist-get ctx :prev-indentation))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Javascript indentation."
   t
   ;; TODO(colin): split up the javascript indentation function.
@@ -4099,7 +4099,7 @@ CTX: the current indentatation context at point."
         (plist-get ctx :language)
         (plist-get ctx :reg-beg))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Indent after a closing paren at a block opening."
   (and (eq (plist-get ctx :prev-char) ?\))
        (rjsx-mode-part-is-opener (plist-get ctx :prev-pos)
@@ -4110,12 +4110,12 @@ CTX: the current indentatation context at point."
     (plist-get ctx :reg-beg))
    rjsx-mode-code-indent-offset))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Indent after a bare else."
   (string-match-p "^else$" (plist-get ctx :prev-line))
   (+ (plist-get ctx :prev-indentation) rjsx-mode-code-indent-offset))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Indent at the start of an array, argument list, or array element."
   (or (member ?\, (list (plist-get ctx :prev-char) (plist-get ctx :next-char)))
       (member (plist-get ctx :prev-char) '(?\( ?\[)))
@@ -4141,7 +4141,7 @@ CTX: the current indentatation context at point."
         (looking-at ",[ \t\n]*")
         (- initial-offset (length (match-string-no-properties 0))))))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Indent after a line ending in an operator."
   ;; TODO(colin): simplify this condition.
   (let ((prev-line (plist-get ctx :prev-line))
@@ -4170,12 +4170,12 @@ CTX: the current indentatation context at point."
            (- prev-col (length (match-string-no-properties 0)))))
         (t (current-column)))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Indent after a line ending in = or =>."
   (string-match-p "=[>]?$" (plist-get ctx :prev-line))
   (+ (plist-get ctx :prev-indentation) rjsx-mode-code-indent-offset))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Concatenation with +."
   (member ?\+ (list (plist-get ctx :prev-char)
                     (plist-get ctx :next-char)))
@@ -4196,7 +4196,7 @@ CTX: the current indentatation context at point."
       (- (current-column) (length (match-string-no-properties 0))))
      (t (current-column)))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Chained function calls starting with `.`."
   (and (member ?\. (list (plist-get ctx :curr-char) (plist-get ctx :prev-char)))
        (not (string-match-p "^\\.\\.\\." (plist-get ctx :curr-line))))
@@ -4226,7 +4226,7 @@ CTX: the current indentatation context at point."
         0))))
 
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Closing paren/bracket/brace indentation."
   ;; TODO(colin): verify rule description
   (member (plist-get ctx :curr-char) '(?\} ?\) ?\]))
@@ -4253,7 +4253,7 @@ CTX: the current indentatation context at point."
         (back-to-indentation)
         (current-indentation))))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "JSX within-element indentation."
   ;; TODO(colin): verify rule description.
   (and (member (plist-get ctx :language) '("jsx"))
@@ -4280,7 +4280,7 @@ CTX: the current indentatation context at point."
           (get-text-property (plist-get ctx :pos) 'reg-beg))
       (rjsx-mode-markup-indentation (plist-get ctx :pos))))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "JSX within-tag indentation."
   ;; TODO(colin): verify rule description.
   (and (member (plist-get ctx :language) '("javascript" "jsx"))
@@ -4324,7 +4324,7 @@ CTX: the current indentatation context at point."
     )
   )
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "JSX closing } indentation."
   ;; TODO(colin): verify rule description.
   (and (equal (plist-get ctx :language) "jsx")
@@ -4334,7 +4334,7 @@ CTX: the current indentatation context at point."
     (rjsx-mode-go (1- (plist-get ctx :reg-beg)))
     (current-column)))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Tag indentation: self-closing??"
   ;; TODO(colin): is this a correct rule label?
   (and (get-text-property (plist-get ctx :pos) 'tag-beg)
@@ -4343,7 +4343,7 @@ CTX: the current indentatation context at point."
     (rjsx-mode-tag-match)
     (current-indentation)))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Block indentation: closing delimiter??"
   ;; TODO(colin): is this correct that this deals with the closing delimiter?
   (eq (get-text-property (plist-get ctx :pos) 'block-token) 'delimiter-end)
@@ -4351,7 +4351,7 @@ CTX: the current indentatation context at point."
     (rjsx-mode-block-beginning)
     (if (< (current-column) (current-indentation)) (current-indentation) (current-column))))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Block indentation."
   ;; TODO(colin): what feature of a block does this deal with exactly?
   (and (get-text-property (plist-get ctx :pos) 'block-beg)
@@ -4361,12 +4361,12 @@ CTX: the current indentatation context at point."
     (rjsx-mode-block-match)
     (current-indentation)))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "Comment indentation."
   (string= (plist-get ctx :token) "comment")
   (rjsx-mode-comment-indentation ctx))
 
-(def-indentation-rule
+(def-rjsx-mode-indentation-rule
   "No offset at beginning of buffer."
   (or (bobp) (= (line-number-at-pos (plist-get ctx :pos)) 1))
   0)
