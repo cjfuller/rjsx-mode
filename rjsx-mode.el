@@ -632,11 +632,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
     ("case-extra-offset" . t)
     ))
 
-(defvar rjsx-mode-engines
-  ;; TODO(colin): remove
-  nil
-  "Engine name aliases")
-
 (defvar rjsx-mode-content-types
   '(("javascript" . "\\.\\([jt]s\\|[jt]s\\.erb\\)\\'")
     ("json"       . "\\.\\(api\\|json\\|jsonld\\)\\'")
@@ -8658,21 +8653,6 @@ Prompt user if TAG-NAME isn't provided."
 
 ;;---- MISC --------------------------------------------------------------------
 
-(defun rjsx-mode-set-engine (engine)
-  "Set the engine for the current buffer."
-  (interactive
-   (list (completing-read
-          "Engine: "
-          (let (engines)
-            (dolist (elt rjsx-mode-engines)
-              (setq engines (append engines (list (car elt)))))
-            engines))))
-  (setq rjsx-mode-content-type "html"
-        rjsx-mode-engine (rjsx-mode-engine-canonical-name engine)
-        rjsx-mode-minor-engine engine)
-  (rjsx-mode-on-engine-setted)
-  (rjsx-mode-buffer-highlight))
-
 (defun rjsx-mode-set-content-type (content-type)
   "Set the content-type for the current buffer"
   (interactive (list (completing-read "Content-type: " rjsx-mode-part-content-types)))
@@ -8718,20 +8698,6 @@ Prompt user if TAG-NAME isn't provided."
                 found t))
         ) ;dolist
       ) ;unless
-
-    (when (boundp 'rjsx-mode-engines-alist)
-      (setq found nil)
-      (dolist (elt rjsx-mode-engines-alist)
-        (cond
-         ((stringp (cdr elt))
-          (when (string-match-p (cdr elt) buff-name)
-            (setq rjsx-mode-engine (car elt))))
-         ((functionp (cdr elt))
-          (when (funcall (cdr elt))
-            (setq rjsx-mode-engine (car elt))))
-         ) ;cond
-        ) ;dolist
-      ) ;when
 
     (when (and (string= rjsx-mode-content-type "javascript")
                (string-match-p "@jsx"
