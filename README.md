@@ -15,9 +15,9 @@ easier to understand and modify and focused on that usecase.
 The goal is for the indentation to follow
 the [Khan Academy style guidelines for jsx](https://github.com/Khan/style-guides/blob/master/style/react.md).
 
-The refactor from web-mode.el is still in progress, and there are still some
-minor indentation issues.  The tests reflect the desired style and as a result,
-the build is failing.  Check the status to see what still needs to be fixed.
+The simplifying refactor from web-mode.el is still in progress, but indentation
+should be up to spec with the style guide.  If not, feel free to add a test and
+submit a pull request!
 
 ## Installation
 
