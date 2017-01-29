@@ -53,8 +53,8 @@ if(!this.begin(ed.isNew() ? "savenewmodule" : "savemodule",
 
 windowOffset.right = (
     $(window).width()
-        - this.$window.outerWidth()
-        - windowOffset.left
+    - this.$window.outerWidth()
+    - windowOffset.left
 );
 
 if(!rstart.isCollapsed()
