@@ -4480,28 +4480,6 @@ CTX: the current indentatation context at point."
       (if (>= value 1) (current-indentation) nil)
       )))
 
-(defun rjsx-mode-relayql-indentation (pos)
-  (let (beg offset level char)
-    (setq char (char-after))
-    (setq beg (rjsx-mode-part-token-beginning-position pos))
-    (goto-char beg)
-    (cond
-     ((member char '(?\`))
-      (setq offset (current-indentation))
-      )
-     ((member char '(?\) ?\} ?\]))
-      (rjsx-mode-go (rjsx-mode-token-opening-paren-position pos beg "relayql"))
-      (setq offset (current-indentation))
-      )
-     ((setq level (rjsx-mode-bracket-level pos beg))
-      (setq offset (+ level rjsx-mode-code-indent-offset))
-      )
-     (t
-      (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset))
-      )
-     )
-    offset))
-
 (defun rjsx-mode-markup-indentation (pos)
   (let ((offset 0) beg ret depth-beg depth-pos)
     (when (setq beg (rjsx-mode-markup-indentation-origin pos))
@@ -7898,17 +7876,6 @@ Prompt user if TAG-NAME isn't provided."
       ) ;while
     ;;(message "pos=%S dot-pos=%S" pos dot-pos)
     (if (null pos) pos (cons pos dot-pos))
-    ))
-
-(defun rjsx-mode-is-relayql-string (&optional pos)
-  (let (beg)
-    (cond
-     ((and (setq beg (rjsx-mode-part-token-beginning-position pos))
-           (rjsx-mode-looking-back "Relay\.QL" beg))
-      beg)
-     (t
-      nil)
-     ) ;cond
     ))
 
 (defun rjsx-mode-part-token-beginning-position (&optional pos)
