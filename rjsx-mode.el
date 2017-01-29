@@ -1110,31 +1110,6 @@ another auto-completion with different ac-sources")
 ;;---- COMPATIBILITY -----------------------------------------------------------
 
 (eval-and-compile
-
-  ;; compatibility with emacs < 23
-  (defun rjsx-mode-string-match-p (regexp string &optional start)
-    "Same as `string-match' except it does not change the match data."
-    (let ((inhibit-changing-match-data t))
-      (string-match regexp string start)))
-
-  (unless (fboundp 'string-match-p)
-    (fset 'string-match-p (symbol-function 'rjsx-mode-string-match-p)))
-
-  ;; compatibility with emacs < 23.3
-  (if (fboundp 'with-silent-modifications)
-      (defalias 'rjsx-mode-with-silent-modifications 'with-silent-modifications)
-    (defmacro rjsx-mode-with-silent-modifications (&rest body)
-      `(let ((old-modified-p (buffer-modified-p))
-             (inhibit-modification-hooks t)
-             (buffer-undo-list t))
-         (unwind-protect
-             ,@body
-           (set-buffer-modified-p old-modified-p)))))
-
-  ;; compatibility with emacs < 24
-  (defalias 'rjsx-mode-prog-mode
-    (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
-
   ;; compatibility with emacs < 24.3
   (defun rjsx-mode-buffer-narrowed-p ()
     (if (fboundp 'buffer-narrowed-p)
@@ -1151,7 +1126,7 @@ another auto-completion with different ac-sources")
 ;;---- MAJOR MODE --------------------------------------------------------------
 
 ;;;###autoload
-(define-derived-mode rjsx-mode rjsx-mode-prog-mode "(React)JSX"
+(define-derived-mode rjsx-mode prog-mode "(React)JSX"
   "Major mode for editing web templates."
 
   (make-local-variable 'rjsx-mode-attr-indent-offset)
@@ -1257,7 +1232,7 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
 (defun rjsx-mode-scan-region (beg end &optional content-type)
   "Identify nodes/parts/blocks and syntactic symbols (strings/comments)."
   ;;(message "scan-region: beg(%d) end(%d) content-type(%S)" beg end content-type)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (save-excursion
      (save-restriction
        (save-match-data
@@ -1619,7 +1594,7 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
    ))
 
 (defun rjsx-mode-block-controls-get (pos)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (let ((controls nil))
      (cond
       ((null (get-text-property pos 'block-side))
@@ -2862,7 +2837,7 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
 
 (defun rjsx-mode-highlight-region (&optional beg end) ;; content-type)
   ;;(message "highlight-region: beg(%S) end(%S)" beg end)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (save-excursion
      (save-restriction
        (save-match-data
@@ -5610,7 +5585,7 @@ Prompt user if TAG-NAME isn't provided."
   "Toggle folding on an html element or a control block."
   (interactive)
   (rjsx-mode-propertize)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (save-excursion
      (if pos (goto-char pos))
      (let (beg-inside beg-outside end-inside end-outside overlay overlays regexp)
@@ -5663,7 +5638,7 @@ Prompt user if TAG-NAME isn't provided."
 (defun rjsx-mode-toggle-comments ()
   "Toggle comments visbility."
   (interactive)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (save-excursion
      (if rjsx-mode-comments-invisible
          (remove-overlays))
@@ -8781,7 +8756,7 @@ Prompt user if TAG-NAME isn't provided."
   nil)
 
 (defun rjsx-mode-on-exit ()
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
    (put-text-property (point-min) (point-max) 'invisible nil)
    (remove-overlays)
    (remove-hook 'change-major-mode-hook 'rjsx-mode-on-exit t)
@@ -8822,7 +8797,7 @@ extended to support more filetypes by customizing
 (defun rjsx-mode-reload ()
   "Reload rjsx-mode."
   (interactive)
-  (rjsx-mode-with-silent-modifications
+  (with-silent-modifications
     (put-text-property (point-min) (point-max) 'invisible nil)
     (remove-overlays)
     (setq font-lock-unfontify-region-function 'font-lock-default-unfontify-region)
