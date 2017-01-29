@@ -1,8 +1,6 @@
 dist: trusty
 sudo: false
-
 install:
     - sudo apt-get -qq install emacs24
-
 script:
     - ./run_tests.sh
