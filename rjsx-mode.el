@@ -581,7 +581,6 @@ Must be used in conjunction with rjsx-mode-enable-block-face."
 (defvar rjsx-mode-inhibit-fontification nil)
 (defvar rjsx-mode-inlay-regexp nil)
 (defvar rjsx-mode-is-scratch nil)
-(defvar rjsx-mode-jshint-errors 0)
 (defvar rjsx-mode-minor-engine nil)
 (defvar rjsx-mode-obarray nil)
 (defvar rjsx-mode-overlay-tag-start nil)
@@ -1098,7 +1097,6 @@ another auto-completion with different ac-sources")
     (define-key map (kbd "C-c C-f")   'rjsx-mode-fold-or-unfold)
     (define-key map (kbd "C-c C-h")   'rjsx-mode-buffer-highlight)
     (define-key map (kbd "C-c C-i")   'rjsx-mode-buffer-indent)
-    (define-key map (kbd "C-c C-j")   'rjsx-mode-jshint)
     (define-key map (kbd "C-c C-l")   'rjsx-mode-file-link)
     (define-key map (kbd "C-c C-m")   'rjsx-mode-mark-and-expand)
     (define-key map (kbd "C-c C-n")   'rjsx-mode-navigate)
@@ -1180,7 +1178,6 @@ another auto-completion with different ac-sources")
   (make-local-variable 'rjsx-mode-indentless-elements)
   (make-local-variable 'rjsx-mode-inhibit-fontification)
   (make-local-variable 'rjsx-mode-is-scratch)
-  (make-local-variable 'rjsx-mode-jshint-errors)
   (make-local-variable 'rjsx-mode-last-enabled-feature)
   (make-local-variable 'rjsx-mode-markup-indent-offset)
   (make-local-variable 'rjsx-mode-minor-engine)
@@ -3411,17 +3408,6 @@ With debug off, it logs a message; with debug on, it errors to get a traceback."
 ;;    (message "beg(%S) end(%S)" beg end)
     (cons beg end)
     ))
-
-(defun rjsx-mode-engine-syntax-check ()
-  (interactive)
-  nil
-  ;; TODO(colin): remove
-    )
-
-(defun rjsx-mode-jshint ()
-  nil
-  ;; TODO(colin): remove
-    )
 
 (defun rjsx-mode-dom-errors-show ()
   "Show unclosed tags."
