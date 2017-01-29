@@ -4472,23 +4472,6 @@ CTX: the current indentatation context at point."
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
 
-         ((member ?\, chars)
-          (when debug (message "I30"))
-          (cond
-           ((not (rjsx-mode-block-args-beginning pos reg-beg))
-            ;;(message "ici")
-            )
-           ((cdr (assoc "lineup-args" rjsx-mode-indentation-params))
-            (setq offset (current-column))
-            (when (eq curr-char ?\,)
-              (goto-char pos)
-              (looking-at ",[ \t\n]*")
-              (setq offset (- offset (length (match-string-no-properties 0)))))
-            )
-           (t
-            (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-           ))
-
          ((member language '("javascript" "jsx"))
           (when debug (message "I32 : javascript-indentation"))
           ;;(message "js-indent")
