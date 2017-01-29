@@ -1,6 +1,9 @@
 dist: trusty
-sudo: false
+sudo: true
 install:
-    - sudo apt-get -qq install emacs24
+    - sudo add-apt-repository -y ppa:cassou/emacs
+    - sudo apt-get -qq update
+    - sudo apt-get -qq -f install
+    - sudo apt-get install emacs24 emacs24-el
 script:
     - ./run_tests.sh
