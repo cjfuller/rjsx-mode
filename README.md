@@ -16,10 +16,8 @@ The goal is for the indentation to follow
 the [Khan Academy style guidelines for jsx](https://github.com/Khan/style-guides/blob/master/style/react.md).
 
 The refactor from web-mode.el is still in progress, and there are still some
-minor indentation issues.  Notably: tags are over-indented following the close
-of a self-closing tag (`/>`) on a line by itself.  The tests reflect the
-desired style and as a result, the build is failing.  Check the status to see
-what still needs to be fixed.
+minor indentation issues.  The tests reflect the desired style and as a result,
+the build is failing.  Check the status to see what still needs to be fixed.
 
 ## Installation
 

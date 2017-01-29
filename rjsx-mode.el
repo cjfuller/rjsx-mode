@@ -4274,6 +4274,11 @@ CTX: the current indentatation context at point."
       (rjsx-mode-markup-indentation (plist-get ctx :pos))))))
 
 (def-rjsx-mode-indentation-rule
+  "JSX indentation following a self-closing tag on a line by itself."
+  (string-match-p "^/>$" (plist-get ctx :prev-line))
+  (plist-get ctx :prev-indentation))
+
+(def-rjsx-mode-indentation-rule
   "JSX within-tag indentation."
   ;; TODO(colin): verify rule description.
   (and (member (plist-get ctx :language) '("javascript" "jsx"))
