@@ -1,12 +1,24 @@
 ;;; rjsx-mode.el --- major mode for editing react jsx files
 ;;; -*- coding: utf-8 -*-
 
+;; Copyright (c) 2017 Colin Fuller
+;; Adapted from web-mode.el, which is Copyright (c) 2011-2017 François-Xavier Bois
+;; (Adapted according to the terms of the GPLv2, see LICENSE.)
+
+;; Author: Colin Fuller <cjfuller@gmail.com>
+;; Maintainer: Colin Fuller <cjfuller@gmail.com>
+;; URL: https://github.com/cjfuller/rjsx-mode
+;; Created: January 2017
+;; Version: 1.0.0
+;; Keywords: react, jsx, languages
+;; Package-Requires: ((seq "2.19"))
+
 ;;; Code:
 (require 'seq)
 
 ;;---- CONSTS ------------------------------------------------------------------
 
-(defconst rjsx-mode-version "0.1.0"
+(defconst rjsx-mode-version "1.0.0"
   "Rjsx mode version.")
 
 ;;---- GROUPS ------------------------------------------------------------------
