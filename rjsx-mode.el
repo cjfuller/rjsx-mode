@@ -4150,10 +4150,39 @@ CTX: the current indentatation context at point."
   ))
 
 ;; Indentation rules are listed in reverse priority order.
+;; TODO(colin): many of these should be split into smaller rules that do just
+;; one thing.
 (def-indentation-rule
   "Default: indent the same as the last line."
   nil ;; TODO(colin): eventually this should become `t` and be a catch-all.
   (plist-get ctx :prev-indentation))
+
+
+(def-indentation-rule
+  "Indent at the start of an array, argument list, or array element."
+  (or (member ?\, (list (plist-get ctx :prev-char) (plist-get ctx :next-char)))
+      (member (plist-get ctx :prev-char) '(?\( ?\[)))
+  (save-excursion
+    (cond
+     ;; TODO(colin): checking this condition will move point.  Fix.
+     ((not (rjsx-mode-javascript-args-beginning
+            (plist-get ctx :pos)
+            (plist-get ctx :reg-beg)))
+      (rjsx-mode-hypothesize-unused)
+      0)
+     ((or (not (cdr (assoc "lineup-args" rjsx-mode-indentation-params)))
+          (looking-at-p "\n"))
+      (let ((reg-col (plist-get ctx :reg-col)))
+        (if (and reg-col (> reg-col (current-indentation)))
+            (+ reg-col rjsx-mode-code-indent-offset)
+          (+ (current-indentation) rjsx-mode-code-indent-offset))))
+     ((not (eq (plist-get ctx :curr-char) ?\,))
+      (current-column))
+     (t
+      (let ((initial-offset (current-column)))
+        (goto-char (plist-get ctx :pos))
+        (looking-at ",[ \t\n]*")
+        (- initial-offset (length (match-string-no-properties 0))))))))
 
 (def-indentation-rule
   "Indent after a line ending in an operator."
@@ -4419,31 +4448,6 @@ CTX: the current indentatation context at point."
          ((rjsx-mode-any-rules-apply-p ctx)
           (setq offset (rjsx-mode-call-matching-rule ctx))
           (setq reg-col nil))
-
-         ((and (member language '("javascript" "jsx"))
-               (or (member ?\, chars)
-                   (member prev-char '(?\( ?\[))))
-          (when debug (message "I26"))
-          (cond
-           ((not (rjsx-mode-javascript-args-beginning pos reg-beg))
-            (message "no js args beg")
-            )
-           ((or (not (cdr (assoc "lineup-args" rjsx-mode-indentation-params)))
-                (looking-at-p "\n"))
-            ;;(message "ici%S" (point))
-            (if (and reg-col (> reg-col (current-indentation)))
-                (setq offset (+ reg-col rjsx-mode-code-indent-offset))
-              (setq offset (+ (current-indentation) rjsx-mode-code-indent-offset)))
-            )
-           ((not (eq curr-char ?\,))
-            (setq offset (current-column)))
-           (t
-            (setq offset (current-column))
-            (goto-char pos)
-            (looking-at ",[ \t\n]*")
-            (setq offset (- offset (length (match-string-no-properties 0)))))
-           ) ;cond
-          )
 
          ((and (member language '("javascript" "jsx"))
                (or (eq prev-char ?\))
