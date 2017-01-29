@@ -7,4 +7,4 @@ install:
     - sudo apt-get install emacs24 emacs24-el
     - git clone https://github.com/NicolasPetton/seq.el
 script:
-    - ./run_tests_ci.sh
+    - /usr/bin/env CI=1 ./run_tests.sh

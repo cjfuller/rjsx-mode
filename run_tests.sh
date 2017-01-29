@@ -2,7 +2,13 @@
 
 set -e
 
-emacs --batch -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
+if [ -n "$CI" ]
+then
+    # Load the seq library first when running on emacs 24 for CI.
+    emacs --batch -l ./seq.el/seq-24.el -l ./seq.el/seq.el -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
+else
+    emacs --batch -l ./rjsx-mode.el --eval "(progn (setq debug-on-error 1) (rjsx-mode-test))" > /dev/null
+fi
 
 set +e
 exit_status=0
